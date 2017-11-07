@@ -38,6 +38,10 @@ public class GridBag extends JFrame implements ActionListener{
    
    public GridBag(){
 
+      Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+      double width = screenSize.getWidth();
+      double height = screenSize.getHeight();
+
       JPanel jpBoard;
       jpBoard = new JPanel(new GridLayout(9,9));
       
@@ -60,8 +64,8 @@ public class GridBag extends JFrame implements ActionListener{
             //player space   
             button = new JButton("            ");
             button.setFocusPainted(false);
-            c.ipadx = 80; //x spacing
-            c.ipady = 80; //y spacing
+            c.ipadx = (int)(width*0.025); //x spacing
+            c.ipady = (int)(width*0.025); //y spacing
             c.gridx = 0; //0 x location
             c.gridy = 0; //0 y location
             gridbag.setConstraints(button, c);
@@ -74,7 +78,7 @@ public class GridBag extends JFrame implements ActionListener{
             button = new JButton(""); 
             button.setBackground(Color.BLUE);
             c.ipadx = 0;
-            c.ipady = 95;
+            c.ipady = (int)(width*0.030);
             c.gridx = 1;
             c.gridy = 0;
             gridbag.setConstraints(button, c);
@@ -98,8 +102,8 @@ public class GridBag extends JFrame implements ActionListener{
             button.setBackground(Color.BLUE);
             c.gridx = 0;
             c.gridy = 1;
-            c.ipadx = 115;
-            c.ipady = 20;
+            c.ipadx = (int)(width*0.035);
+            c.ipady = (int)(height*0.015);
             gridbag.setConstraints(button, c);            
             bottomWall[i][j] = button;
             bottomWall[i][j].setActionCommand("bottom" + "-" + i + "-" + j);
@@ -123,7 +127,7 @@ public class GridBag extends JFrame implements ActionListener{
             c.gridx = 1;
             c.gridy = 1;
             c.ipadx = 0;
-            c.ipady = 20;
+            c.ipady = (int)(height*0.015);
             gridbag.setConstraints(button, c);
             centerWall[i][j] = button;
             centerWall[i][j].setActionCommand("center" + "-" + i + "-" + j);
