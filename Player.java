@@ -27,10 +27,12 @@ public class Player extends JFrame{
 
    int[][] centerWall = new int[9][9];
    
+   //Pathing solution
    int[][] solution = new int[10][10];
    
+   //column then row 
    int[][] tLocation = new int[][]{
-                                 {0,0}, //change 2nd number to 4 when using this for real
+                                 {0,4}, //change 2nd number to 4 when using this for real
                                  {8,4},
                                  {4,0},
                                  {4,8}
@@ -99,6 +101,7 @@ public class Player extends JFrame{
    
    public Player(){
       
+      
       for(int i = 0; i < pAmount; i++){
          pNames.add("Player " + i);
          wallCount.add(7);
@@ -124,7 +127,7 @@ public class Player extends JFrame{
    }
 
    
-   class ChatDisplay extends JPanel implements ActionListener{
+   class ChatDisplay extends JPanel implements ActionListener, KeyListener{
    
       public ChatDisplay(){
       	
@@ -136,8 +139,47 @@ public class Player extends JFrame{
          
          jtfMessage = new JTextField(24);
          jbSend = new JButton("Send");
+
+       
+         //Add actionListeners for the button
+         jbSend.addActionListener(new ActionListener(){
+            public void actionPerformed (ActionEvent ae){
+               String message = null;
+               message = jtfMessage.getText(); //get text from text field
+               ChatMessage cm = new ChatMessage(message);
+               try{
+                  oos.writeObject(cm); //send to server
+                  oos.flush();
+               }
+               catch (IOException io){}
+               jtfMessage.setText(""); 
+            } 
+         });
          
-      
+         
+         //Adds a keylistener/adapter for the enter key to be able to send messages
+         jtfMessage.addKeyListener(
+            new KeyAdapter(){
+               @Override 
+                  public void keyPressed( KeyEvent e )	
+            		{
+            			int keyCode = e.getKeyCode();   // what letter was pressed              				
+                     if(keyCode == KeyEvent.VK_ENTER){
+                        String messageTwo = null;
+                        messageTwo = jtfMessage.getText(); //get text from text field
+                        ChatMessage cm = new ChatMessage(messageTwo);
+                        try{
+                           oos.writeObject(cm); //send to server
+                           oos.flush();
+                        }
+                        catch (IOException io){}
+                        jtfMessage.setText(""); 
+                     }   
+                   
+                  } // end of keypressed class 
+         });
+         
+
          JPanel jpChatOutput = new JPanel();
       
          jpChatOutput.add(scroll);
@@ -154,10 +196,9 @@ public class Player extends JFrame{
          
          add(jpChatMain, BorderLayout.CENTER);
 
-         //System.out.println(""+ this.getHeight());
          setBackground(Color.LIGHT_GRAY);  
       
-      } //End of chat display method
+      } //End of chat display constructor
       
       
       /* For actionListener interface */
@@ -166,9 +207,27 @@ public class Player extends JFrame{
           
       }
       
+      /* For KeyListener interface */
+   
+      @Override
+      public void keyTyped (KeyEvent e){
+          
+      } 
+       
+      @Override
+      public void keyPressed (KeyEvent e){
+          
+      }
+      
+      @Override   
+      public void keyReleased (KeyEvent e){
+          
+      }  
       
       
-   }
+      
+   }//End of chat display class
+   
    class Tracker extends JPanel{
    
       public Tracker(){
@@ -400,7 +459,7 @@ public class Player extends JFrame{
    
    } //End of class GridBag
    
-   class SocketSetup {
+   class SocketSetup{
    
       public SocketSetup(){
       
@@ -425,7 +484,6 @@ public class Player extends JFrame{
             oos.writeObject(player); //send player name to server
             oos.flush();
             
-         
          } //End of try
          
          catch (ConnectException ce){
@@ -433,12 +491,11 @@ public class Player extends JFrame{
          }
    
          catch (IOException io){
-            //io.printStackTrace();
+            //io.printStackTrace(); //SocketException is thrown
          }  
       
       }//End of constructor
-   
-   
+      
    } //End of class SocketSetup
    
    
@@ -463,16 +520,20 @@ public class Player extends JFrame{
                   playersInfo = (PlayersInfo)genObject;
                   System.out.println(playersInfo.getName(0)); 
                }//End of if
+               else if (genObject instanceof ChatMessage){
+                  ChatMessage cm = (ChatMessage)genObject;
+                  jtaMessage.append(cm.getMessage()+"\n");  
+               }
             }//End of while 
          
           } //end of try
 
          
           catch (IOException io){
-            io.printStackTrace();
+            //io.printStackTrace();
           }
           catch (ClassNotFoundException cnf){
-            cnf.printStackTrace();
+            //cnf.printStackTrace();
           }
       
       

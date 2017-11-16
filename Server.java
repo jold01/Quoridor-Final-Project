@@ -50,7 +50,7 @@ public class Server extends JFrame{
       } //end of catch
          
       catch (IOException ioe){
-         ioe.printStackTrace();
+         //ioe.printStackTrace();
       } //end of catch       
    
    } //End of server constructor 
@@ -96,6 +96,14 @@ public class Server extends JFrame{
                      pt.sendInfo(playersInfo);
                   }
                }//End of if
+               else if (genObject instanceof ChatMessage){
+                  ChatMessage cm = (ChatMessage)genObject;
+                  for(PlayerThread pt: players){
+                     pt.sendInfo(cm);
+                  }  
+               }
+               
+               
             }//End of while 
              
                
@@ -115,7 +123,7 @@ public class Server extends JFrame{
          }
          
          catch(NullPointerException npe){
-            npe.printStackTrace();
+            //npe.printStackTrace();
          }
          catch(IOException ioe){
             ioe.printStackTrace();
