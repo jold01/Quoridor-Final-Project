@@ -23,31 +23,27 @@ import java.net.*;
  */
 
 public class Player extends JFrame{
-
    /**
     * @attributes: an output stream, and another one for passing in the player object
     * @description: send output to server
     */
+   // send output to server
    OutputStream out;
    ObjectOutputStream oos;
    
    //ArrayList<Vector> playerNames = new ArrayList<Vector>();
-
-
-   // 'send' button for sending the message 
-   JButton jbSend;
    
+   JButton jbSend;
    /**
     * @attributes: an input stream, and another one for passing in the player object
     * @description: open input from the server
-    */
+    */   
+   // open input from the server
    InputStream in;
    ObjectInputStream ois;
    
-   //Icon that represents an empty space on the game board
    ImageIcon emptySpace = new ImageIcon("emptyspace.jpg");
 
-   //The dimensions of the game board
    int[][] playerArray = new int[9][9];
                                     
    int[][] rightArray = new int[9][9];
@@ -91,28 +87,36 @@ public class Player extends JFrame{
    int pAmount = 4; //# of players  
    
    
-   //Stored player name 
+   //Store name?
    String clientName = "Player";
    int clientNum;
    
-   //Components of chat box
+   //CHAT VAR
    private JTextArea jtaMessage; 
    private JTextField jtfMessage; 
    
-   //A list of player names when game is initially started
+  	//NEW STUFF FROM JACK
+	private JMenuBar jmb;
+	private JMenu jm;
+	private JMenuItem jmiAbout, jmiCredits, jmiExit, jmiConnect;
+
+	//Connect Window Info NEW STUFF FROM JACK
+	private String ip_address;
+   
+   //Player Names when game is initially started
    ArrayList<String> pNames = new ArrayList<String>();
    
-   //Components of the ScoreBoard 
-   ArrayList<JLabel> jlScore = new ArrayList<JLabel>();   
+   //Label for ScoreBoard 
+   ArrayList<JLabel> jlScore = new ArrayList<JLabel>();
+   
    ArrayList<Integer> pScore = new ArrayList<Integer>();
    
-   //A record of the number of wins if players are playing multiple games
+   //Record wins if players are playing multiple games
    ArrayList<Integer> wallCount = new ArrayList<Integer>();
    
-   //A fixed array of image icons that represent a specific color 
+   //stores the images of icons
    static final   ImageIcon[] imageList = {new ImageIcon("blue.jpg"), new ImageIcon("pink.jpg"),new ImageIcon("green.jpg"),new ImageIcon("yellow.jpg")};
    
-   //An array of colors corresponding to their image icon
    Color[] colors = { Color.blue, Color.red, Color.green, Color.yellow};
    
    //Label for ScoreBoard 
@@ -121,14 +125,13 @@ public class Player extends JFrame{
    
    //Label of Walls for wallTracker
    ArrayList<JLabel> jlWallCount = new ArrayList<JLabel>();
- 
    
    /**
     * Main method calls the default constructor of this class, and displays the game
     *
     * @param args - argument string(s) to run during compilation 
-    */   
-   public static void main(String [] args){
+    */    
+    public static void main(String [] args){
      
       try {
            // Set cross-platform Java L&F (also called "Metal")
@@ -147,16 +150,18 @@ public class Player extends JFrame{
       catch (IllegalAccessException e) {
       // handle exception
       }
-   
+      
+    /**
+    * Default constructor
+    */   
      new Player();
      
    } //End of main
  
  
-   /**
-    * Default constructor
-    */
-   public Player(){      
+   
+   public Player(){
+      
       
       for(int i = 0; i < pAmount; i++){
          pNames.add("Player " + (i + 1));
@@ -166,6 +171,9 @@ public class Player extends JFrame{
          jlScore.add(new JLabel());
          
       }
+	
+		add(new PlayerMenu(), BorderLayout.NORTH);
+
       add(new GridBag(), BorderLayout.CENTER);
       
       add(new ChatDisplay(), BorderLayout.EAST); 
@@ -178,17 +186,173 @@ public class Player extends JFrame{
       setDefaultCloseOperation( EXIT_ON_CLOSE );
       setVisible(true); 
       
-      new SocketSetup();
+      //new SocketSetup();
       
-   } //end of default constructor
+      //NEW STUFF FROM JACK
+      clientName = JOptionPane.showInputDialog("Enter a player name: ");
+      
 
+		addWindowListener(new WindowAdapter(){
+			@Override
+			public void windowClosing(WindowEvent e){
+
+				new PlayerDisconnect();
+			}
+
+		});
+      
+   }
+
+	//The JMenu Class
+	//PlayerMenu NEW STUFF BY JACK
+	class PlayerMenu extends JPanel {
+		
+		public PlayerMenu(){
+			
+			setLayout(new FlowLayout(FlowLayout.LEFT));
+			
+			
+			jmb = new JMenuBar();
+			add(jmb);
+
+			jm = new JMenu("Settings");
+			jmb.add(jm);
+
+			jmiConnect = new JMenuItem("Connect...");
+			jmiAbout = new JMenuItem("Game Rules");
+			jmiCredits = new JMenuItem("Credits");
+			jmiExit = new JMenuItem("Exit");
+
+			jm.add(jmiConnect);
+			jm.add(jmiAbout);
+			jm.add(jmiCredits);
+			jm.add(jmiExit);
+
+			jmiConnect.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent ae){
+					new ConnectWindow();
+
+				}
+
+			});
+			jmiAbout.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent ae){
+
+
+				}
+
+			});
+			jmiCredits.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent ae){
+
+
+				}
+
+			});
+			jmiExit.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent ae){
+					//System.exit(0);
+					new PlayerDisconnect();
+
+				}
+
+			});
+
+		}
+
+
+	}//end of PlayerMenu Class
+
+	//CONNECT WINDOW NEW STUFF BY JACK
+	class ConnectWindow extends JFrame{
+
+   	private JPanel jpStartPane;
+   	private JPanel jpNamePane;
+   	private JPanel jpIpPane;
+   
+   
+   	private JLabel jlAddress;
+   	private JTextField jtfAddress;
+   
+   	private JButton jbConnect;
+   
+   
+   	public ConnectWindow(){
+   
+      	//General Frame Information
+      	setTitle("Client Start-Up");
+      	setDefaultCloseOperation(ConnectWindow.DISPOSE_ON_CLOSE);
+      	setSize(400,150);
+      	setLocationRelativeTo(null);
+      
+      	//Create Panels
+      	jpStartPane = new JPanel();
+      	jpNamePane = new JPanel(new FlowLayout());
+      	jpIpPane = new JPanel(new FlowLayout());
+      
+      
+      	//create Label and field for ip Address
+      	jlAddress = new JLabel("Server IP: ");
+      	jpIpPane.add(jlAddress);
+      
+      	jtfAddress = new JTextField(20);
+      	jpIpPane.add(jtfAddress);
+      
+ 			//Add Panels to JFrame
+      	jpStartPane.add(jpNamePane, BorderLayout.NORTH);
+      	jpStartPane.add(jpIpPane, BorderLayout.CENTER);
+      
+      	jbConnect = new JButton("Start Client");
+      	jpStartPane.add(jbConnect, BorderLayout.SOUTH);
+      	add(jpStartPane);
+
+			jbConnect.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent ae){
+					ip_address = jtfAddress.getText();
+					new SocketSetup();
+					dispose();
+      			//new SocketSetup();
+
+				}
+
+			});
+
+			setVisible(true);
+		}
+
+	}
+
+	//INNER CLASS PlayerDisconnect NEW STUFF BY JACK
+	class PlayerDisconnect{
+
+		public PlayerDisconnect(){
+			
+			PlayerExit pe = new PlayerExit();
+
+			try{
+				oos.writeObject(pe);
+				oos.flush();
+
+			}
+			catch(IOException ioe){
+				System.out.println("window adapter exception");
+			}
+			catch(NullPointerException npe){
+				System.out.println("PlayerDisconnect NPE");
+			}
+			finally{
+				System.exit(0);
+			}
+	
+		}
+		
+
+  	}//end of PlayerDisconnect 
    /**
     * Inner Class for displaying chat messages 
-    */
+    */   
    class ChatDisplay extends JPanel implements ActionListener, KeyListener{
-      /**
-       * ChatDisplay default constructor
-       */
+   
       public ChatDisplay(){
       	
         	//int columnHeight = getHeight() - 10;
@@ -289,15 +453,11 @@ public class Player extends JFrame{
       
       
    }//End of chat display class
-   
-   
    /**
     * Inner Class for updating scores on the score board.
-    */
+    */   
    class Tracker extends JPanel{
-      /**
-       * Tracker default constructor
-       */
+   
       public Tracker(){
          
          //createEmptyBorder(0,10,10,10);
@@ -336,17 +496,15 @@ public class Player extends JFrame{
          setBackground(Color.LIGHT_GRAY);  
          //setPreferredSize(new Dimension(200, 300));
          //setBorder( new EmptyBorder( 10, 30, 15, 15 ) );
-      
-      } //end of Tracker default constructor
-   } //end of Tracker class
-   
+      }
+   } 
    /**
     * Inner Class for setting the dimensions of the game board
-    */  
+    */   
    class GridBag extends JPanel implements ActionListener{
       /**
        * GridBag default constructor
-       */      
+       */       
       GridBag(){
    
          Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -468,16 +626,14 @@ public class Player extends JFrame{
             }//end of inner for loop 
            
          } //end of outer for loop 
-         
-         //add all components to the game board     
+              
          add(jpBoard);
           
       
-      }//End of GridBag constructor 
-      
+      }//End of constructor 
       /**
        * Event handlers
-       */
+       */      
       public void	actionPerformed(ActionEvent ae){
          
          //Get location of button clicked
@@ -491,7 +647,7 @@ public class Player extends JFrame{
          
          //If middle wall clicked, need to decide if they want to place a horizontal or vertical wall
          if (name.equals("player")){
-            System.out.println(x + " " + y);
+            //System.out.println(x + " " + y);
         
             if(!((x == tLocation[clientNum][0]) && (y == tLocation[clientNum][1]))){
                enableDisableWall(false);
@@ -604,17 +760,12 @@ public class Player extends JFrame{
    
    } //End of class GridBag
    
-   /**
-    * Inner Class for creating the Socket for client-server communication 
-    */
    class SocketSetup{
-      /**
-       * SocketSetup default constructor
-       */      
+   
       public SocketSetup(){
       
          try{
-            Socket s = new Socket("localhost", 16789);
+            Socket s = new Socket(ip_address, 16789);
                      
             // output to the server
             out = s.getOutputStream(); 
@@ -628,6 +779,12 @@ public class Player extends JFrame{
             tr.start(); //starts the reader thread 
             
          } //End of try
+         catch (UnknownHostException uhe){
+					System.out.println("WRONG IP BOI");
+					//JOptionPane.showMessageDialog(null, "No server with that IP.");
+
+
+			}
          
          catch (ConnectException ce){
             System.out.println("Sorry no server available at the time");
@@ -637,26 +794,28 @@ public class Player extends JFrame{
             //io.printStackTrace(); //SocketException is thrown
          }  
       
-      }//End of SocketSetup default constructor
+      }//End of constructor
       
    } //End of class SocketSetup
    
    /**
     * Inner Class for running the threads
-    */
+    */   
    class ThreadReader extends Thread implements ActionListener{
       /**
        * ThreadReader default constructor
-       */      
-      public ThreadReader(){                         
+       */     
+      public ThreadReader(){
+         
+                
    
-      }//End of ThreadReader default constructor   
+      }//End of constructor   
       
       //starts the work of the thread
       public void run(){
       
          try{
-            clientName = JOptionPane.showInputDialog("Enter a player name: ");
+            //clientName = JOptionPane.showInputDialog("Enter a player name: ");
             PlayerName pn = new PlayerName(clientName);
             oos.writeObject(pn); //send player name to server
             oos.flush();
@@ -675,7 +834,6 @@ public class Player extends JFrame{
                   InitialGame ig = (InitialGame)genObject;
                   pAmount = ig.getPlayerAmount();
                   pNames = ig.getArray();
-                  System.out.println(pNames.get(0) + " " + pNames.get(1));
                   
                   for(int i = 0; i < pAmount; i++){
                      playerArray[resetLocation[i][0]][resetLocation[i][1]] = 1;
@@ -791,6 +949,25 @@ public class Player extends JFrame{
                   
                
                }
+               //NEW STUFF BY JACK
+					else if(genObject instanceof PlayerExit){
+						PlayerExit pl = (PlayerExit)genObject;
+						
+						try{
+							ois.close();
+							oos.close();
+						}
+						catch(IOException ioe){
+						}
+						finally{
+							System.exit(0);
+						}
+
+
+
+					}
+               
+               
             }//End of while 
          
           } //end of try
@@ -828,25 +1005,25 @@ public class Player extends JFrame{
       playerSpace[x][y].setEnabled(clickable);
        
       try{
-         if(playerArray[x+1][y] == 0){
+         if(playerArray[x+1][y] == 0 && bottomArray[x][y] == 0){
             playerSpace[x+1][y].setEnabled(clickable);
          }  
       }
       catch(ArrayIndexOutOfBoundsException ae){}
       try{
-         if(playerArray[x-1][y] == 0){
+         if(playerArray[x-1][y] == 0 && bottomArray[x-1][y] == 0){
             playerSpace[x-1][y].setEnabled(clickable);
          }     
       }
       catch(ArrayIndexOutOfBoundsException ae){}   
       try{
-         if(playerArray[x][y+1] == 0){
+         if(playerArray[x][y+1] == 0 && rightArray[x][y] == 0){
             playerSpace[x][y+1].setEnabled(clickable);
          }            
       }
       catch(ArrayIndexOutOfBoundsException ae){}   
       try{
-         if(playerArray[x][y-1] == 0){
+         if(playerArray[x][y-1] == 0 && rightArray[x][y-1] == 0){
             playerSpace[x][y-1].setEnabled(clickable);
          }            
       }

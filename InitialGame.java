@@ -57,4 +57,4 @@ public class InitialGame implements Serializable {
       return playerAmount;
    }
 
-} //End of class PlayerTurn
+} //End of class InitialGame

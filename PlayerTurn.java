@@ -1,6 +1,5 @@
 import java.util.*;
 import java.io.*;
-
 /**
  * PlayerTurn is a serialized class that's responsible for notifying each player when it's 
  * his or her turn.  <p>
@@ -16,14 +15,13 @@ import java.io.*;
  *
  * @version 2017-11-30
  */
-
 public class PlayerTurn implements Serializable {
-
    /**
     * PlayerTurn default constructor
     */
+   
    public PlayerTurn(){
  
-   } //End of default constructor
+   } //End of constructor
 
 } //End of class PlayerTurn

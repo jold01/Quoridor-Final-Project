@@ -1,7 +1,6 @@
 import java.util.*;
 import java.net.*;
 import java.io.*;
-
 /**
  * PlayerExit is a serialized class that's responsible for keeping track of players 
  * who exit the game. <p>
@@ -17,14 +16,15 @@ import java.io.*;
  *
  * @version 2017-11-30
  */
-
 public class PlayerExit implements Serializable{
-
    /**
     * PlayerExit default constructor
-    */   
+    */ 
 	public PlayerExit(){
 
-	} //End of default constructor
+      
 
-} //End of class PlayerExit
+	}
+
+
+}

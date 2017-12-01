@@ -64,4 +64,4 @@ public class HorzPlace implements Serializable {
       return y;
    }
    
-} //End of class playerInfo 
+} //End of class 
