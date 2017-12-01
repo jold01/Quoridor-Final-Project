@@ -12,26 +12,41 @@ public class Player extends JFrame{
    OutputStream out;
    ObjectOutputStream oos;
    
+   //ArrayList<Vector> playerNames = new ArrayList<Vector>();
+   
    JButton jbSend;
    
    // open input from the server
    InputStream in;
    ObjectInputStream ois;
+   
+   ImageIcon emptySpace = new ImageIcon("emptyspace.jpg");
 
-
-   int[][] playerSpace = new int[9][9];
+   int[][] playerArray = new int[9][9];
                                     
-   int[][] rightWall = new int[9][9];
+   int[][] rightArray = new int[9][9];
 
-   int[][] bottomWall = new int[9][9];
+   int[][] bottomArray = new int[9][9];
 
-   int[][] centerWall = new int[9][9];
+   int[][] centerArray = new int[9][9];
    
    //Pathing solution
-   int[][] solution = new int[10][10];
+   int[][] solution = new int[9][9];
+   
+   JButton[][] centerWall;
+   JButton[][] playerSpace;
+   JButton[][] rightWall;
+   JButton[][] bottomWall;
+   JButton button;
    
    //column then row 
    int[][] tLocation = new int[][]{
+                                 {0,4}, //change 2nd number to 4 when using this for real
+                                 {8,4},
+                                 {4,0},
+                                 {4,8}
+                                       };
+   int[][] resetLocation = new int[][]{
                                  {0,4}, //change 2nd number to 4 when using this for real
                                  {8,4},
                                  {4,0},
@@ -50,11 +65,15 @@ public class Player extends JFrame{
    int pAmount = 4; //# of players  
    
    
+   //Store name?
+   String clientName = "Player";
+   int clientNum;
+   
    //CHAT VAR
    private JTextArea jtaMessage; 
    private JTextField jtfMessage; 
    
-   //Player Names temporary only
+   //Player Names when game is initially started
    ArrayList<String> pNames = new ArrayList<String>();
    
    //Label for ScoreBoard 
@@ -65,6 +84,10 @@ public class Player extends JFrame{
    //Record wins if players are playing multiple games
    ArrayList<Integer> wallCount = new ArrayList<Integer>();
    
+   //stores the images of icons
+   static final   ImageIcon[] imageList = {new ImageIcon("blue.jpg"), new ImageIcon("pink.jpg"),new ImageIcon("green.jpg"),new ImageIcon("yellow.jpg")};
+   
+   Color[] colors = { Color.blue, Color.red, Color.green, Color.yellow};
    
    //Label for ScoreBoard 
    private JLabel jlScoreTitle;
@@ -103,8 +126,8 @@ public class Player extends JFrame{
       
       
       for(int i = 0; i < pAmount; i++){
-         pNames.add("Player " + i);
-         wallCount.add(7);
+         pNames.add("Player " + (i + 1));
+         wallCount.add(5);
          pScore.add(0);
          jlWallCount.add(new JLabel());
          jlScore.add(new JLabel());
@@ -117,7 +140,7 @@ public class Player extends JFrame{
       add(new Tracker(), BorderLayout.SOUTH);             
          //Windows and visibility 
       setTitle("Quoridor Final Project");
-      setSize(1000,700);
+      setSize(1050,800);
       setLocationRelativeTo(this);
       setDefaultCloseOperation( EXIT_ON_CLOSE );
       setVisible(true); 
@@ -148,7 +171,9 @@ public class Player extends JFrame{
                message = jtfMessage.getText(); //get text from text field
                ChatMessage cm = new ChatMessage(message);
                try{
-                  oos.writeObject(cm); //send to server
+                  oos.writeObject(cm); //send to serverJPanel jpPlayers = new JPanel(new GridLayout(0,1));JPanel jpPlayers = new JPanel(new GridLayout(0,1));
+
+
                   oos.flush();
                }
                catch (IOException io){}
@@ -271,12 +296,6 @@ public class Player extends JFrame{
       }
    }  
    class GridBag extends JPanel implements ActionListener{
-   
-      JButton[][] centerWall;
-      JButton[][] playerSpace;
-      JButton[][] rightWall;
-      JButton[][] bottomWall;
-      JButton button;
       
       GridBag(){
    
@@ -286,7 +305,7 @@ public class Player extends JFrame{
          
          JPanel jpBoard;
          jpBoard = new JPanel(new GridLayout(9,9));
-         jpBoard.setPreferredSize(new Dimension(550, 550));
+         jpBoard.setPreferredSize(new Dimension(650, 650));
          playerSpace = new JButton[10][10];
          rightWall = new JButton[10][10];
          bottomWall = new JButton[10][10];
@@ -304,11 +323,11 @@ public class Player extends JFrame{
                GridBagConstraints c = new GridBagConstraints(); 
                    
                //player space   
-               button = new JButton("            ");
+               button = new JButton("");
                button.setFocusPainted(false);
-               button.setBackground(Color.GRAY);
-               c.ipadx = (int)(24); //x spacing
-               c.ipady = (int)(24); //y spacing
+               button.setBackground(Color.LIGHT_GRAY);
+               c.ipadx = 0;//(int)(24); //x spacing
+               c.ipady = 0;//(int)(24); //y spacing
                c.gridx = 0; //0 x location
                c.gridy = 0; //0 y location
                gridbag.setConstraints(button, c);
@@ -317,12 +336,14 @@ public class Player extends JFrame{
                playerSpace[i][j].setActionCommand("player" + "-" + i + "-" + j);
                playerSpace[i][j].addActionListener(this);
                playerSpace[i][j].setEnabled(false);
+               playerSpace[i][j].setIcon(emptySpace);
+               //playerSpace[i][j].setDisabledIcon(emptySpace);
                
                //right wall creation
                button = new JButton(""); 
-               button.setBackground(Color.BLUE);
-               c.ipadx = (int)(40);
-               c.ipady = (int)(40);
+               button.setBackground(Color.DARK_GRAY);
+               c.ipadx = 1;//(int)(40);
+               c.ipady = 40;//(int)(40);
                c.gridx = 1;
                c.gridy = 0;
                gridbag.setConstraints(button, c);
@@ -344,11 +365,11 @@ public class Player extends JFrame{
    
                //creation of bottom wall
                button = new JButton("");
-               button.setBackground(Color.BLUE);
+               button.setBackground(Color.DARK_GRAY);
                c.gridx = 0;
                c.gridy = 1;
-               c.ipadx = (int)(60);
-               c.ipady = (int)(20);
+               c.ipadx = 40;//(int)(60);
+               c.ipady = 15;//(int)(20);
                gridbag.setConstraints(button, c);            
                bottomWall[i][j] = button;
                bottomWall[i][j].setActionCommand("bottom" + "-" + i + "-" + j);
@@ -369,15 +390,16 @@ public class Player extends JFrame{
                
                //creation of center wall
                button = new JButton("");
-               button.setBackground(Color.BLUE);
+               button.setBackground(Color.DARK_GRAY);
                c.gridx = 1;
                c.gridy = 1;
-               c.ipadx = (int)(40);
-               c.ipady = (int)(20);
+               c.ipadx = 1;//(int)(40);
+               c.ipady = 15;//(int)(20);
                gridbag.setConstraints(button, c);
                centerWall[i][j] = button;
                centerWall[i][j].setActionCommand("center" + "-" + i + "-" + j);
                centerWall[i][j].addActionListener(this); 
+               centerWall[i][j].setEnabled(false);
                            
                //if not bottom row, add normal
                if ((!(i == 8) && (j != 8))){             
@@ -406,7 +428,6 @@ public class Player extends JFrame{
          
          //Get location of button clicked
          String command = ae.getActionCommand();
-         
          String[] split = command.split("-");
          
          String name = split[0];
@@ -415,6 +436,37 @@ public class Player extends JFrame{
          int choice  = 0;
          
          //If middle wall clicked, need to decide if they want to place a horizontal or vertical wall
+         if (name.equals("player")){
+            System.out.println(x + " " + y);
+        
+            if(!((x == tLocation[clientNum][0]) && (y == tLocation[clientNum][1]))){
+               enableDisableWall(false);
+               enableDisableSpace(false);
+               
+               //Check if win condition is met
+               if((clientNum == 0 && x == 8) || (clientNum == 1 && x == 0) || (clientNum == 2 && y == 8) || (clientNum == 3 && y == 0)){//location matches win Con #
+               
+                  WinCon wc = new WinCon(clientName,clientNum,x,y);
+                  try{
+                     oos.writeObject(wc); //send to server
+                     oos.flush();
+                  }
+                  catch (IOException io){}                  
+               
+               }//end if
+               else{
+               //send normal moves over
+                  
+                  TokenPlace place = new TokenPlace(x,y, clientNum);
+                  try{
+                     oos.writeObject(place); //send to server
+                     oos.flush();
+                  }
+                  catch (IOException io){}   
+                  
+               }//emd else
+            } 
+         }
          if (name.equals("center")){
                      
             Object[] options = {"Horizontal","Vertical"};
@@ -430,31 +482,70 @@ public class Player extends JFrame{
                                
             //Horizontal wall was clicked 
             if (choice == JOptionPane.YES_OPTION){
-               //System.out.println("Horizontal Wall");
-               centerWall[x][y].setBackground(Color.RED);
+               //Temp horz wall in Array to check if path avaliable
+               centerArray[x][y] = 1;            
+               bottomArray[x][y]= 1;
+               bottomArray[x][y+1] = 1;
+               if(pathTrial() == true){
+               //path found
+                  centerArray[x][y] = 0;
+                  bottomArray[x][y] = 0;
+                  bottomArray[x][y+1] = 0;
+                  //sets the arrays back ... they will be changed during the reading phase
+                  enableDisableWall(false);
+                  enableDisableSpace(false);
+                  HorzPlace hp = new HorzPlace(x,y, clientNum);
+                  try{
+                     oos.writeObject(hp); //send to server
+                     oos.flush();
+                  }
+                  catch (IOException io){}
                
-               bottomWall[x][y].setBackground(Color.RED);
-               bottomWall[x][y+1].setBackground(Color.RED);
-               
+                  //NEEDS TO DISABLE CLICKING / TURN ADDTO      
+                  }
+               else{
+                  //GIVE PROMPT TELL THEM OPTION IS NOT ALLOWED/ THIS BLOCKS PATH
+                  centerArray[x][y] = 0;
+                  bottomArray[x][y] = 0;
+                  bottomArray[x][y+1] = 0;
+                  JOptionPane.showMessageDialog(centerWall[x][y], "This is not a valid move. Placing this wall will block other player's paths. Please choose again.");
+               }             
             }
             //Vertical wall was clicked
             else if(choice == JOptionPane.NO_OPTION){
-               //System.out.println("Vertical Wall");
-               centerWall[x][y].setBackground(Color.RED);
+               //Temp horz wall in Array to check if path avaliable
+               centerArray[x][y] = 1;            
+               rightArray[x][y]= 1;
+               rightArray[x+1][y] = 1;
+               if(pathTrial() == true){
+               //path found
+                  centerArray[x][y] = 0;
+                  rightArray[x][y] = 0;
+                  rightArray[x+1][y] = 0;
+                  //sets the arrays back ... they will be changed during the reading phase
+                  enableDisableWall(false);
+                  enableDisableSpace(false);
+                  VertPlace vp = new VertPlace(x,y, clientNum);
+                  try{
+                     oos.writeObject(vp); //send to server
+                     oos.flush();
+                  }
+                  catch (IOException io){}
                
-               rightWall[x][y].setBackground(Color.RED);
-               rightWall[x+1][y].setBackground(Color.RED);
+                  //NEEDS TO DISABLE CLICKING / TURN  ADDTO        
+                  }
+               else{
+                  //GIVE PROMPT TELL THEM OPTION IS NOT ALLOWED/ THIS BLOCKS PATH
+                  centerArray[x][y] = 0;
+                  rightArray[x][y] = 0;
+                  rightArray[x+1][y] = 0;
+                  JOptionPane.showMessageDialog(centerWall[x][y], "This is not a valid move. Placing this wall will block other player's paths. Please choose again.");
+               }
             }
              
          } //End of center if
             
       } //End of actionPerformed
-      
-      public void placeWall(){
-      
-         System.out.println("asds");
-      
-      } //End of placeWall method 
    
    
    } //End of class GridBag
@@ -476,13 +567,6 @@ public class Player extends JFrame{
             
             ThreadReader tr = new ThreadReader(); 
             tr.start(); //starts the reader thread 
-            
-            String playerName;
-            playerName = JOptionPane.showInputDialog("Enter a player name: ");
-            PlayerName player = new PlayerName(playerName);
-            
-            oos.writeObject(player); //send player name to server
-            oos.flush();
             
          } //End of try
          
@@ -511,18 +595,140 @@ public class Player extends JFrame{
       public void run(){
       
          try{
-            PlayersInfo playersInfo;
-
+            clientName = JOptionPane.showInputDialog("Enter a player name: ");
+            PlayerName pn = new PlayerName(clientName);
+            oos.writeObject(pn); //send player name to server
+            oos.flush();
             
             Object genObject = null; 
             while((genObject = (Object)ois.readObject()) != null){
-               if (genObject instanceof PlayersInfo){
-                  playersInfo = (PlayersInfo)genObject;
-                  System.out.println(playersInfo.getName(0)); 
+               //used to get the player name and their index at the very start of the game
+               if (genObject instanceof PlayerName){
+                  //casts gen Object as player Info
+                  pn = (PlayerName)genObject;
+                  clientNum = pn.getIndex();
+                  
                }//End of if
+               //used to set up a new game with current total players
+               else if (genObject instanceof InitialGame){
+                  InitialGame ig = (InitialGame)genObject;
+                  pAmount = ig.getPlayerAmount();
+                  pNames = ig.getArray();
+                  System.out.println(pNames.get(0) + " " + pNames.get(1));
+                  
+                  for(int i = 0; i < pAmount; i++){
+                     playerArray[resetLocation[i][0]][resetLocation[i][1]] = 1;
+                     playerSpace[resetLocation[i][0]][resetLocation[i][1]].setIcon(imageList[i]);  
+                     jlWallCount.get(i).setText(pNames.get(i) + "'s Walls: " + wallCount.get(i));                    
+                  }                 
+               }
+               else if (genObject instanceof PlayerTurn){
+                  //Dialog pop up
+                  JOptionPane.showMessageDialog( null, "It is now your turn");
+                  //run enable functions here
+                  if(wallCount.get(clientNum) > 0){
+                     enableDisableWall(true);
+                     enableDisableSpace(true);
+                  }
+                  else{
+                     enableDisableSpace(true);
+                  }            
+                  
+                  //Possible timer?
+               }
+               else if (genObject instanceof WinCon){
+               
+                  WinCon wc = (WinCon)genObject;
+                  int x = wc.getX();
+                  int y = wc.getY();
+                  int index = wc.getIndex();
+                 
+                  int prevx = tLocation[index][0];
+                  int prevy = tLocation[index][1];
+                  
+                  //Here change the locations
+                  tLocation[index][0] = x;
+                  tLocation[index][1] = y;
+                  
+                  //Change the values in the grid to show the new locations as filled or empty
+                  playerArray[prevx][prevy] = 0;
+                  playerArray[x][y] = 1;
+                  
+                  playerSpace[prevx][prevy].setIcon(emptySpace); //Uses empty space graphic to show spot is empty
+                  playerSpace[x][y].setIcon(imageList[index]); //use player info to get the proper Icon Image
+                  
+                  pScore.set(index, pScore.get(index) +1);
+                  jlScore.get(index).setText(pNames.get(index) + "'s Walls: " + pScore.get(index));
+                  
+                  if(clientNum == index){
+                     JOptionPane.showMessageDialog(null, "YOU WIN!");
+   
+                  }
+                  else{
+                     JOptionPane.showMessageDialog(null, wc.getName() + " has reached the opposite side and wins!");
+
+                  }
+               }
                else if (genObject instanceof ChatMessage){
                   ChatMessage cm = (ChatMessage)genObject;
-                  jtaMessage.append(cm.getMessage()+"\n");  
+                  jtaMessage.append(cm.toString());  
+               }
+               else if (genObject instanceof HorzPlace){
+                  HorzPlace hp = (HorzPlace)genObject;
+                  int x = hp.getX();
+                  int y = hp.getY();
+                  int index = hp.getIndex();
+                  
+                  centerArray[x][y] = 1;
+                  bottomArray[x][y] = 1;
+                  bottomArray[x][y+1] = 1;
+                  
+                  centerWall[x][y].setBackground(Color.RED);
+                  bottomWall[x][y].setBackground(Color.RED);
+                  bottomWall[x][y+1].setBackground(Color.RED);
+                  
+                  wallCount.set(index, wallCount.get(index) -1);
+                  jlWallCount.get(index).setText(pNames.get(index) + "'s Walls: " + wallCount.get(index)); 
+               }
+               else if (genObject instanceof VertPlace){
+                  VertPlace vp = (VertPlace)genObject;
+                  int x = vp.getX();
+                  int y = vp.getY();
+                  int index = vp.getIndex();
+
+                  centerWall[x][y].setBackground(Color.RED);
+                  rightWall[x][y].setBackground(Color.RED);
+                  rightWall[x+1][y].setBackground(Color.RED);     
+                  
+                  centerArray[x][y] = 1;
+                  rightArray[x][y] = 1;
+                  rightArray[x+1][y ] = 1;
+                  
+                  wallCount.set(index, wallCount.get(index) -1);
+                  jlWallCount.get(index).setText(pNames.get(index) + "'s Walls: " + wallCount.get(index));           
+               }
+               else if (genObject instanceof TokenPlace){
+                  TokenPlace tp = (TokenPlace)genObject;
+                  int x = tp.getX();
+                  int y = tp.getY();
+                  int index = tp.getIndex();
+                 
+                  int prevx = tLocation[index][0];
+                  int prevy = tLocation[index][1];
+                  
+                  //Here change the locations
+                  tLocation[index][0] = x;
+                  tLocation[index][1] = y;
+                  
+                  //Change the values in the grid to show the new locations as filled or empty
+                  playerArray[prevx][prevy] = 0;
+                  playerArray[x][y] = 1;
+                  
+                  playerSpace[prevx][prevy].setIcon(emptySpace); //Uses empty space graphic to show spot is empty
+                  playerSpace[x][y].setIcon(imageList[index]); //use player info to get the proper Icon Image
+                  
+                  
+               
                }
             }//End of while 
          
@@ -543,10 +749,208 @@ public class Player extends JFrame{
       public void actionPerformed (ActionEvent ae){
           
       }
-
-
-} //End of inner class ThreadConnection
+   } //End of inner class ThreadConnection
+   public void enableDisableWall(boolean clickable){
+      for(int x = 0; x < 9; x++){
+         for(int y = 0; y < 9; y++){
+            if(centerArray[x][y] == 0){
+               centerWall[x][y].setEnabled(clickable);
+            }
+         }
+      }
+   }
+   public void enableDisableSpace(boolean clickable){
+      int x = tLocation[clientNum][0];
+      int y = tLocation[clientNum][1];
+      
+      //action listner prevents this from having an event
+      playerSpace[x][y].setEnabled(clickable);
+       
+      try{
+         if(playerArray[x+1][y] == 0){
+            playerSpace[x+1][y].setEnabled(clickable);
+         }  
+      }
+      catch(ArrayIndexOutOfBoundsException ae){}
+      try{
+         if(playerArray[x-1][y] == 0){
+            playerSpace[x-1][y].setEnabled(clickable);
+         }     
+      }
+      catch(ArrayIndexOutOfBoundsException ae){}   
+      try{
+         if(playerArray[x][y+1] == 0){
+            playerSpace[x][y+1].setEnabled(clickable);
+         }            
+      }
+      catch(ArrayIndexOutOfBoundsException ae){}   
+      try{
+         if(playerArray[x][y-1] == 0){
+            playerSpace[x][y-1].setEnabled(clickable);
+         }            
+      }
+      catch(ArrayIndexOutOfBoundsException ae){}      
+   }
+   boolean pathTrial(){
+      boolean pathAllow = true;
+      for(int pNum = 0; pNum < pAmount; pNum++){//change pAmount for less players or have a list of only active players (Option)
+         if(pathFound(pNum) == false){
+            clearArray(solution);
+            pathAllow = false;
+            break;
+         }
+         clearArray(solution);
+         if(pNum == pAmount -1){
+            pathAllow = true;
+         }
+      }
+      return pathAllow;
+   }//end PathTrail
    
+   boolean pathFound(int playerNum){
+   
+      //passes in player token locations and player number
+      if (pathRec(tLocation[playerNum][0], tLocation[playerNum][1], playerNum) == false){
+      
+         //System.out.println("No path found");
+         return false;
+      }
+      
+      //System.out.println("Path found");     
+      return true;
+   }//end pathFound
+   
+   //returns false if the cordinates are outside of the array or player space is filled
+   boolean isSafe(int x, int y, int array[][]){
+      return( x >= 0 && x < 9 && y >= 0 && y < 9 && array[x][y] == 0); //replace 9 with a variable for Array lengths
+   }//end isSafe
+   
+   //reset the solution to empty
+   public void clearArray(int array[][]){
+      for(int i = 0; i < 9; i++){
+         for(int j = 0; j < 9; j++){
+            array[i][j] = 0;
+         }//end of inner loop
+      }//end of outer loop
+   }//end of Clear Solution
+      
+   boolean pathRec(int x, int y, int num){
+   
+      //Check for path avaliable allows exit of recursion
+      if((num == 0 || num == 1) && x == winCon[num]){
+         //System.out.println("in win codition "+ x + " "+ winCon[num]);
+         solution[x][y] = 1;
+         //printSolution(solution, bottomArray, rightArray, centerArray); //Prints array of solution path
+         return true; 
+      }//end of if , check for player 1 and 2 have a path
+      if((num == 2 || num == 3) && y == winCon[num]){
+         solution[x][y] = 1;
+         //printSolution(solution, bottomArray, rightArray, centerArray); //Prints array of solution path
+         return true;
+      }// end of if, check for player 3 and 4 have a path
+      
+      if(isSafe(x, y, solution) == true){ //runs if player space is safe
+         
+         //mark solution path taken
+         solution[x][y] = 1;
+         
+         //check for movement depending on player direction needed to win
+         if(num == 0){
+            //try south
+            if(isSafe(x,y,bottomArray) == true){ //check if wall in array and empty 
+               if(pathRec(x + 1, y, num)){
+                  return true;
+               }
+            }
+            //try east
+            if(isSafe(x,y,rightArray) == true){ //check if wall in array and empty
+               if(pathRec(x, y + 1, num)){
+                  return true;
+               }
+            }
+            //try west
+            if(isSafe(x,y-1,rightArray) == true){//check if wall in array and empty
+               if(pathRec(x, y - 1, num)){
+                  return true;
+               }
+            }
+            //backtrack
+            solution[x][y] = 0;
+            return false;          
+         }
+         if(num == 1){
+            //try north
+            if(isSafe(x - 1,y,bottomArray) == true){ //check if wall in array and empty 
+               if(pathRec(x - 1, y, num)){
+                  return true;
+               }
+            }
+            //try west
+            if(isSafe(x,y - 1,rightArray) == true){//check if wall in array and empty
+               if(pathRec(x, y - 1, num)){
+                  return true;
+               }
+            }
+            //try east
+            if(isSafe(x,y,rightArray) == true){ //check if wall in array and empty
+               if(pathRec(x, y + 1, num)){
+                  return true;
+               }
+            }
+            //backtrack
+            solution[x][y] = 0;
+            return false;  
+         }
+         if(num == 2){
+            //try east
+            if(isSafe(x,y,rightArray) == true){ //check if wall in array and empty
+               if(pathRec(x, y + 1, num)){
+                  return true;
+               }
+            }
+            //try south
+            if(isSafe(x,y,bottomArray) == true){ //check if wall in array and empty 
+               if(pathRec(x + 1, y, num)){
+                  return true;
+               }
+            }
+            //try north
+            if(isSafe(x - 1,y,bottomArray) == true){ //check if wall in array and empty 
+               if(pathRec(x - 1, y, num)){
+                  return true;
+               }
+            }
+            //backtrack
+            solution[x][y] = 0;
+            return false;    
+         }
+         if(num == 3){
+            //try west
+            if(isSafe(x,y - 1,rightArray) == true){//check if wall in array and empty
+               if(pathRec(x, y - 1, num)){
+                  return true;
+               }
+            }
+            //try north
+            if(isSafe(x - 1,y,bottomArray) == true){ //check if wall in array and empty 
+               if(pathRec(x - 1, y, num)){
+                  return true;
+               }
+            }
+            //try south
+            if(isSafe(x,y,bottomArray) == true){ //check if wall in array and empty 
+               if(pathRec(x + 1, y, num)){
+                  return true;
+               }
+            }
+            //backtrack
+            solution[x][y] = 0;
+            return false;    
+         }
+      }//is playerspace safe end 
+      
+      return false; //if player space is unsafe           
+   }//end of path Recursion     
    
    
    

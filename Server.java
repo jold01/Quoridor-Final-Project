@@ -1,10 +1,32 @@
 import java.net.*;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import java.io.*;
+import java.lang.Object.*;
+import java.lang.StringBuilder;
 
 
 public class Server extends JFrame{
+
+
+   //SHOULDN'T THIS BE AN ARRAY? ADDTO
+   //When we are refering to the player area to show changes how do we know which if we only have the associated string or indexes
+   //We need some for of list to know which JTextarea to call 
+   //-From Catie
+	//private JTextArea jtaP1;
+	//private JTextArea jtaP2;
+	//private JTextArea jtaP3;
+	//private JTextArea jtaP4;
+	private Vector<JTextArea> jtaDisplay = new Vector<JTextArea>();
+
+	//The JTextArea that holds the output of the chat program
+	private JTextArea jtaChatLog;
+	
+   ArrayList<String> nameList = new ArrayList<String>();
+   //Is the Player Connected?
+   ArrayList<String> connectionList = new ArrayList<String>();
 
    //Create vector of InnerClass for the players (clients)
    private Vector<PlayerThread> players = new Vector<PlayerThread>();
@@ -14,7 +36,43 @@ public class Server extends JFrame{
    } //End of main
    
    public Server(){
-   
+ 	
+		JPanel jpPlayers = new JPanel(new GridLayout(0,1));
+		for(int i = 0; i < 4; ++i){
+		   jtaDisplay.add(new JTextArea(5, 20));
+		   jtaDisplay.get(i).setBackground(Color.BLACK);
+		   jtaDisplay.get(i).setForeground(Color.GREEN);
+         jtaDisplay.get(i).setEditable(false);
+         jpPlayers.add(new JLabel("Player" + (i +1)));
+         jpPlayers.add(jtaDisplay.get(i));
+		   //jtaP3.setText("TESTING");
+		}
+		jtaChatLog = new JTextArea(5,50);
+		
+		JScrollPane scroll = new JScrollPane(jtaChatLog);
+		
+		add(scroll, BorderLayout.WEST);
+		add(jpPlayers, BorderLayout.CENTER);
+		
+		jtaChatLog.setEditable(false);
+		
+		//jtaChatLog.setText("TEsting");
+		
+		jtaChatLog.setForeground(Color.GREEN);
+		
+		jtaChatLog.setBackground(Color.BLACK);
+		
+		jpPlayers.setBackground(Color.GRAY);
+		
+		
+		setTitle("Server-side Gui");
+		
+		pack();
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setVisible(true);
+	  
+
       try{
       
          //set up serversocket, specifying the same port# as the client 
@@ -25,20 +83,22 @@ public class Server extends JFrame{
       
          // prints out the localhost
          System.out.println(InetAddress.getLocalHost());
+
    
          while(true){
             
             // Wait for a client to connect 
             System.out.println("Waiting for a client to connect.... ");
             cs = ss.accept(); // accept a client 
-            System.out.println("Have a client connection: " + cs);
-     
+            System.out.println("Have a client connection: " + cs);	
+				//jtaP1.setText(""+cs);
             //after accepting the client, start the thread
             PlayerThread pt = new PlayerThread(cs);
             pt.start();
             
             //add player to player vector
             players.add(pt);
+            
                
          } // end of while loop
          
@@ -54,7 +114,14 @@ public class Server extends JFrame{
       } //end of catch       
    
    } //End of server constructor 
-   
+
+	//jtaToString creates a string that will create the output for the server player JTAs
+	public String jtaToString(String name, String address){
+		String result = String.format("%s%n%s%n", name, address);
+
+		return result;
+
+	}
    
    class PlayerThread extends Thread{
    
@@ -73,7 +140,8 @@ public class Server extends JFrame{
    
       //start the work of the thread 
       public void run(){
-      
+      	String name = "no name";
+
          try{
  
             // output to the client
@@ -84,26 +152,108 @@ public class Server extends JFrame{
             in = cs.getInputStream(); 
             ois = new ObjectInputStream(in); 
            
-            PlayersInfo playersInfo = new PlayersInfo();
-           
-
+				//ChatMessage cm = null;
+            
             Object genObject = null; 
             while((genObject = (Object)ois.readObject()) != null){
                if (genObject instanceof PlayerName){
-                  PlayerName p = (PlayerName)genObject;
-                  playersInfo.setName(p.getPlayerName()); //adds the player to the playerInfo arraylist 
-                  for(PlayerThread pt: players){
-                     pt.sendInfo(playersInfo);
+                  PlayerName pn = (PlayerName)genObject;
+						/*if(p.getPlayerName().equals(null)){
+							p.setPlayerName("NO NAME");
+						}*/
+                  
+                  name = pn.getPlayerName();
+                  nameList.add(name); //adds the player to the playerName arraylist
+                  int index = nameList.size() -1;
+                  connectionList.add("C");
+						jtaDisplay.get(index).setText(name + "\n" + cs);
+                  pn.setIndex(index);
+                  //Must reject additional players here ADDTO
+                   
+                  players.get(index).sendInfo(pn);
+                  
+                  if(players.size() == 2){ // change to 4 for normal play
+                     startGame();
                   }
+                  
                }//End of if
+               else if (genObject instanceof WinCon){//Checks for win condition msg
+                  WinCon wc = (WinCon)genObject;
+                  for(PlayerThread pt : players){
+                     pt.sendInfo(wc);
+                  }
+               }//end if
                else if (genObject instanceof ChatMessage){
                   ChatMessage cm = (ChatMessage)genObject;
-                  for(PlayerThread pt: players){
-                     pt.sendInfo(cm);
+						cm.setName(name);
+                  
+                  String msgRead = cm.getMessage();
+                  if(msgRead.charAt(0) == '@'){//for private messaging
+                     String[] brokenMsg = msgRead.split(":");
+                     
+                     StringBuilder nameMsg = new StringBuilder(brokenMsg[0]);
+                     nameMsg.deleteCharAt(0);
+                     msgRead = nameMsg.toString();
+                     System.out.println(brokenMsg[0]);
+                     System.out.println(brokenMsg[1]);
+                     System.out.println(msgRead);
+                     if(nameList.indexOf(msgRead) != -1){
+                        cm = new ChatMessage(brokenMsg[1]);
+                        cm.setName(name);
+                        players.get(nameList.indexOf(name)).sendInfo(cm);
+                        players.get(nameList.indexOf(msgRead)).sendInfo(cm);   
+                     }
+                     else{
+                        cm = new ChatMessage("Error. Not a player name. Please try again.");
+                        cm.setName("Server");
+                        players.get(nameList.indexOf(name)).sendInfo(cm);
+                     }
+                  }
+                  else{//if msg is for all players
+						   jtaChatLog.append(cm.toString());
+                     for(PlayerThread pt: players){
+                        pt.sendInfo(cm);
+                     }
                   }  
                }
-               
-               
+               else if (genObject instanceof VertPlace){
+                  VertPlace vp = (VertPlace)genObject;
+                  
+                  //Once jtextarea handled in list 
+                  jtaDisplay.get(vp.getIndex()).append("Placed a Vertical Wall");
+                  //use the list to print results to proper person
+                  
+                  for(PlayerThread pt: players){
+                     pt.sendInfo(vp);
+                  }//send changes to each player
+                  
+                  //NEEDS TO GIVE TURN ORDER TO NEXT PLAYER HERE 
+                  passTurn(vp.getIndex(), 0, vp.getIndex());
+                  //-Catie             
+               }
+               else if(genObject instanceof HorzPlace){
+                  HorzPlace hp = (HorzPlace)genObject;
+                  
+                  //Once jtextarea handled in list 
+                  jtaDisplay.get(hp.getIndex()).append("Placed a Horizontal Wall");
+                  //use the list to print results to proper person
+                  
+                  for(PlayerThread pt: players){
+                     pt.sendInfo(hp);
+                  }//send changes to each player
+                  
+                  passTurn(hp.getIndex(), 0, hp.getIndex());
+               }
+               else if(genObject instanceof TokenPlace){
+                  TokenPlace place = (TokenPlace)genObject;
+                  
+                  jtaDisplay.get(place.getIndex()).append("Moved their Token");
+                  
+                  for(PlayerThread pt: players){
+                     pt.sendInfo(place);
+                  }
+                  passTurn(place.getIndex(), 0, place.getIndex());   
+               }    
             }//End of while 
              
                
@@ -145,7 +295,52 @@ public class Server extends JFrame{
          }
 
       } //End of sendMessage method 
-   
+      
+      public void passTurn(int curNum, int trys, int starting){
+         if(trys > nameList.size()){//checks if win by default since all other players disconnected
+            System.out.println((starting +1) + "Wins by default");
+            //ADD TO PASS WIN OBJECT
+         }//end of if
+         else{
+            
+            //Make changes to curNum
+            if(curNum == nameList.size()-1){ //if player is the last to have joined game
+               trys += 1; 
+               curNum = 0; //will try to pass turn to 1st player
+            }
+            else{ //all other players
+               trys += 1;
+               curNum += 1; //will pass turn to next player
+            }   
+            
+            //Check for connection to pass turn  
+            if(connectionList.get(curNum) == "C"){//if client is connected
+               PlayerTurn turn = new PlayerTurn();
+               players.get(curNum).sendInfo(turn); // send Player Turn to the player
+            }
+            //If not connected, try the next player in list
+            else{
+               passTurn(curNum, trys, starting);
+            }    
+         }//end of else      
+      }//end of passTurn 
+      
+      public void startGame(){
+      //START GAME 
+                     
+      //generate inital tokens command
+         InitialGame ig = new InitialGame();
+         System.out.println(nameList.get(0) + " " + nameList.get(1));
+         ig.setArray(nameList);
+         System.out.println("beep-boop");
+         for(PlayerThread pt: players){
+            System.out.println(ig.getPlayerAmount());
+            pt.sendInfo(ig);
+         }
+                     
+         //Now give turn order to first player       
+         passTurn(-1,0,-1);            
+      }  
    
    } // End of InnerClass PlayerThread
    
