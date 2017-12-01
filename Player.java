@@ -6,22 +6,48 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
+/**
+ * Player is a serialized class, and the main GUI for the Quoridor game, which contains the 
+ * board, message area, score board, and their functionalities. <p>
+ *
+ * @author Catherine Poggioli 
+ * @author John Hill
+ * @author Jack Old
+ * @author David Luong
+ *
+ * @group# 06 
+ * @course ISTE 121
+ * @instructor Michael Floeser
+ *
+ * @version 2017-11-30
+ */
+
 public class Player extends JFrame{
 
-   // send output to server
+   /**
+    * @attributes: an output stream, and another one for passing in the player object
+    * @description: send output to server
+    */
    OutputStream out;
    ObjectOutputStream oos;
    
    //ArrayList<Vector> playerNames = new ArrayList<Vector>();
-   
+
+
+   // 'send' button for sending the message 
    JButton jbSend;
    
-   // open input from the server
+   /**
+    * @attributes: an input stream, and another one for passing in the player object
+    * @description: open input from the server
+    */
    InputStream in;
    ObjectInputStream ois;
    
+   //Icon that represents an empty space on the game board
    ImageIcon emptySpace = new ImageIcon("emptyspace.jpg");
 
+   //The dimensions of the game board
    int[][] playerArray = new int[9][9];
                                     
    int[][] rightArray = new int[9][9];
@@ -65,28 +91,28 @@ public class Player extends JFrame{
    int pAmount = 4; //# of players  
    
    
-   //Store name?
+   //Stored player name 
    String clientName = "Player";
    int clientNum;
    
-   //CHAT VAR
+   //Components of chat box
    private JTextArea jtaMessage; 
    private JTextField jtfMessage; 
    
-   //Player Names when game is initially started
+   //A list of player names when game is initially started
    ArrayList<String> pNames = new ArrayList<String>();
    
-   //Label for ScoreBoard 
-   ArrayList<JLabel> jlScore = new ArrayList<JLabel>();
-   
+   //Components of the ScoreBoard 
+   ArrayList<JLabel> jlScore = new ArrayList<JLabel>();   
    ArrayList<Integer> pScore = new ArrayList<Integer>();
    
-   //Record wins if players are playing multiple games
+   //A record of the number of wins if players are playing multiple games
    ArrayList<Integer> wallCount = new ArrayList<Integer>();
    
-   //stores the images of icons
+   //A fixed array of image icons that represent a specific color 
    static final   ImageIcon[] imageList = {new ImageIcon("blue.jpg"), new ImageIcon("pink.jpg"),new ImageIcon("green.jpg"),new ImageIcon("yellow.jpg")};
    
+   //An array of colors corresponding to their image icon
    Color[] colors = { Color.blue, Color.red, Color.green, Color.yellow};
    
    //Label for ScoreBoard 
@@ -96,7 +122,13 @@ public class Player extends JFrame{
    //Label of Walls for wallTracker
    ArrayList<JLabel> jlWallCount = new ArrayList<JLabel>();
  
-    public static void main(String [] args){
+   
+   /**
+    * Main method calls the default constructor of this class, and displays the game
+    *
+    * @param args - argument string(s) to run during compilation 
+    */   
+   public static void main(String [] args){
      
       try {
            // Set cross-platform Java L&F (also called "Metal")
@@ -121,9 +153,10 @@ public class Player extends JFrame{
    } //End of main
  
  
-   
-   public Player(){
-      
+   /**
+    * Default constructor
+    */
+   public Player(){      
       
       for(int i = 0; i < pAmount; i++){
          pNames.add("Player " + (i + 1));
@@ -147,11 +180,15 @@ public class Player extends JFrame{
       
       new SocketSetup();
       
-   }
+   } //end of default constructor
 
-   
+   /**
+    * Inner Class for displaying chat messages 
+    */
    class ChatDisplay extends JPanel implements ActionListener, KeyListener{
-   
+      /**
+       * ChatDisplay default constructor
+       */
       public ChatDisplay(){
       	
         	//int columnHeight = getHeight() - 10;
@@ -253,8 +290,14 @@ public class Player extends JFrame{
       
    }//End of chat display class
    
-   class Tracker extends JPanel{
    
+   /**
+    * Inner Class for updating scores on the score board.
+    */
+   class Tracker extends JPanel{
+      /**
+       * Tracker default constructor
+       */
       public Tracker(){
          
          //createEmptyBorder(0,10,10,10);
@@ -293,10 +336,17 @@ public class Player extends JFrame{
          setBackground(Color.LIGHT_GRAY);  
          //setPreferredSize(new Dimension(200, 300));
          //setBorder( new EmptyBorder( 10, 30, 15, 15 ) );
-      }
-   }  
-   class GridBag extends JPanel implements ActionListener{
       
+      } //end of Tracker default constructor
+   } //end of Tracker class
+   
+   /**
+    * Inner Class for setting the dimensions of the game board
+    */  
+   class GridBag extends JPanel implements ActionListener{
+      /**
+       * GridBag default constructor
+       */      
       GridBag(){
    
          Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -418,12 +468,16 @@ public class Player extends JFrame{
             }//end of inner for loop 
            
          } //end of outer for loop 
-              
+         
+         //add all components to the game board     
          add(jpBoard);
           
       
-      }//End of constructor 
+      }//End of GridBag constructor 
       
+      /**
+       * Event handlers
+       */
       public void	actionPerformed(ActionEvent ae){
          
          //Get location of button clicked
@@ -550,8 +604,13 @@ public class Player extends JFrame{
    
    } //End of class GridBag
    
+   /**
+    * Inner Class for creating the Socket for client-server communication 
+    */
    class SocketSetup{
-   
+      /**
+       * SocketSetup default constructor
+       */      
       public SocketSetup(){
       
          try{
@@ -578,18 +637,20 @@ public class Player extends JFrame{
             //io.printStackTrace(); //SocketException is thrown
          }  
       
-      }//End of constructor
+      }//End of SocketSetup default constructor
       
    } //End of class SocketSetup
    
-   
+   /**
+    * Inner Class for running the threads
+    */
    class ThreadReader extends Thread implements ActionListener{
+      /**
+       * ThreadReader default constructor
+       */      
+      public ThreadReader(){                         
    
-      public ThreadReader(){
-         
-                
-   
-      }//End of constructor   
+      }//End of ThreadReader default constructor   
       
       //starts the work of the thread
       public void run(){

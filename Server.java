@@ -7,9 +7,22 @@ import java.io.*;
 import java.lang.Object.*;
 import java.lang.StringBuilder;
 
+/**
+ * Game Server accepts player connections, and enables player communication.
+ *
+ * @author Catherine Poggioli 
+ * @author John Hill
+ * @author Jack Old
+ * @author David Luong
+ *
+ * @group# 06 
+ * @course ISTE 121
+ * @instructor Michael Floeser
+ *
+ * @version 2017-11-30
+ */
 
 public class Server extends JFrame{
-
 
    //SHOULDN'T THIS BE AN ARRAY? ADDTO
    //When we are refering to the player area to show changes how do we know which if we only have the associated string or indexes
@@ -19,22 +32,34 @@ public class Server extends JFrame{
 	//private JTextArea jtaP2;
 	//private JTextArea jtaP3;
 	//private JTextArea jtaP4;
+   
+   //A safe collection of JTextAreas for storing chat messages
 	private Vector<JTextArea> jtaDisplay = new Vector<JTextArea>();
 
 	//The JTextArea that holds the output of the chat program
 	private JTextArea jtaChatLog;
 	
+   //A list of player names
    ArrayList<String> nameList = new ArrayList<String>();
+   
    //Is the Player Connected?
    ArrayList<String> connectionList = new ArrayList<String>();
 
    //Create vector of InnerClass for the players (clients)
    private Vector<PlayerThread> players = new Vector<PlayerThread>();
    
+   /**
+    * Main method calls the default constructor, which starts the Server
+    *
+    * @param args -  argument string(s) to run during compilation 
+    */
    public static void main(String [] args){
       new Server();
    } //End of main
    
+   /**
+    * Server default constructor
+    */
    public Server(){
  	
 		JPanel jpPlayers = new JPanel(new GridLayout(0,1));
@@ -123,8 +148,11 @@ public class Server extends JFrame{
 
 	}
    
+   /**
+    * Inner Threaded Class for players
+    */
    class PlayerThread extends Thread{
-   
+      
       private Socket cs = null;
 
       OutputStream out = null;
