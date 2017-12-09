@@ -98,7 +98,7 @@ public class Player extends JFrame{
   	//NEW STUFF FROM JACK
 	private JMenuBar jmb;
 	private JMenu jm;
-	private JMenuItem jmiAbout, jmiCredits, jmiExit, jmiConnect;
+	private JMenuItem jmiAbout, jmiCredits, jmiExit, jmiConnect, jmiNewGame;
 
 	//Connect Window Info NEW STUFF FROM JACK
 	private String ip_address;
@@ -190,6 +190,23 @@ public class Player extends JFrame{
       
       //NEW STUFF FROM JACK
       clientName = JOptionPane.showInputDialog("Enter a player name: ");
+
+
+		String intro = "Welcome! \n\nThis is the intro guide on how to navigate"+
+		" our Quoridor game.\nAll of the options listed below can be accessed"+
+		" through the 'Settings'\ntab at the top left of the window.\n\n" +
+		"Connect to a Game - To connect to an online game, click on the\n"+
+		"'Connect...' menu item. A window will pop up asking for an ip address.\n"+
+		"If the server is located on your computer, just click the 'Connect'\n"+
+		"button. If not, type in the IP address of the computer that has the\n"+
+		"server on it.\n\n"+
+		"View the Rules of Quoridor - If you are not sure how to play Quoridor,\n"+
+		"simply click on the 'Game Rules' menu item.\n\n"+
+		"See Who Made this Program - If you would like to see who developed this\n"+
+		"program, click on the 'Credits' menu item.\n\n"+
+		"Exit the Game - To exit the game, click on the 'Exit' menu item.";
+
+		JOptionPane.showMessageDialog(null, intro);
       
 
 		addWindowListener(new WindowAdapter(){
@@ -202,7 +219,7 @@ public class Player extends JFrame{
 		});
       
    }
-
+   
 	//The JMenu Class
 	//PlayerMenu NEW STUFF BY JACK
 	class PlayerMenu extends JPanel {
@@ -222,11 +239,14 @@ public class Player extends JFrame{
 			jmiAbout = new JMenuItem("Game Rules");
 			jmiCredits = new JMenuItem("Credits");
 			jmiExit = new JMenuItem("Exit");
+         jmiNewGame = new JMenuItem("Play Again");
 
 			jm.add(jmiConnect);
+         jm.add(jmiNewGame);
 			jm.add(jmiAbout);
 			jm.add(jmiCredits);
 			jm.add(jmiExit);
+         jmiNewGame.setEnabled(false);
 
 			jmiConnect.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent ae){
@@ -235,9 +255,28 @@ public class Player extends JFrame{
 				}
 
 			});
+			jmiNewGame.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent ae){
+					NewGame ng = new NewGame(clientName, clientNum);
+               try{
+                  oos.writeObject(ng); //send to serverJPanel jpPlayers = new JPanel(new GridLayout(0,1));JPanel jpPlayers = new JPanel(new GridLayout(0,1));
+
+                  oos.flush();
+               }
+               catch (IOException io){}
+
+				}
+			});
 			jmiAbout.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent ae){
+					String ruleString = "Each player's pawn start in the center of the board. \n" +
+                      "The goal of the game is to reach the other side. \n" +
+							                       "A player may choose to either move their pawn or place a wall on their turn. \n" +
+														                        "Player pieces may move up, down, left, or right. Two pieces may not occupy the same spot. \n" +
+																						                      "Walls are placed horizontally or vertically and take up two connecting spots. \n" +
+																													                       "Walls can't be moved and can never completely wall in the opponent. There must always be a path. \n";
 
+					JOptionPane.showMessageDialog(null, ruleString);
 
 				}
 
@@ -245,6 +284,10 @@ public class Player extends JFrame{
 			jmiCredits.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent ae){
 
+					String credits = "The contributors to the Quoridor Program: \n\n"+
+					"- Catherine Poggioli\n- John Hill\n- Jack Old\n- David Luong";
+
+					JOptionPane.showMessageDialog(null, credits);
 
 				}
 
@@ -348,6 +391,7 @@ public class Player extends JFrame{
 		
 
   	}//end of PlayerDisconnect 
+		
    /**
     * Inner Class for displaying chat messages 
     */   
@@ -831,6 +875,7 @@ public class Player extends JFrame{
                }//End of if
                //used to set up a new game with current total players
                else if (genObject instanceof InitialGame){
+                  jmiNewGame.setEnabled(true);
                   InitialGame ig = (InitialGame)genObject;
                   pAmount = ig.getPlayerAmount();
                   pNames = ig.getArray();

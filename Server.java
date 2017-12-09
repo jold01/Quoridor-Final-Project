@@ -296,14 +296,33 @@ public class Server extends JFrame{
                   }
                   passTurn(place.getIndex(), 0, place.getIndex());   
                }
+               //USE IT
+               else if(genObject instanceof NewGame){
+                  NewGame ng = (NewGame)genObject;
+                  
+                  jtaDisplay.get(ng.getIndex()).append("Requested to start a new game.");
+                  
+                  for(int i = 0; i < players.size(); i++){
+                     if(connectionList.get(i) == "C"){
+                        players.get(i).sendInfo(ng);
+                     }
+                  }
+                  startGame(); //send start game once changes are sent 
+               }
+               //MY CHANGES
                else if(genObject instanceof PlayerExit){
 						PlayerExit pl = (PlayerExit)genObject;
-
+                  ChatMessage cm = new ChatMessage(String.format("***%s HAS DISCONNECTED***%n", name));
+						cm.setName("System Console");
 						System.out.println("Player Exited BOIII");
 						
 
 						connectionList.set(index, "D");
 
+						for(int i=0;i<players.size(); i++){
+							players.get(i).sendInfo(cm);
+
+						}
 
 						jtaDisplay.get(index).setText(jtaDisconnectToString(name, (""+cs)));
 
