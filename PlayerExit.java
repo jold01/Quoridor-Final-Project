@@ -18,13 +18,31 @@ import java.io.*;
  */
 public class PlayerExit implements Serializable{
    
+   boolean turn;
+   int index;
    /**
     * PlayerExit default constructor
     */ 
 	public PlayerExit(){
-
-
 	}
-
+   /**
+   * @param _turn - takes in string showing if it is turn or not
+   */
+   public void setTurn(boolean _turn, int _index){
+      this.turn = _turn;
+      this.index = _index;
+   }
+   /**
+   * @return turn - used to show if it is player's turn who disconnected
+   */
+   public boolean getTurn(){
+      return turn;
+   }
+   /**
+   * @return index - used to show index of player who disconnects
+   */
+   public int getIndex(){
+      return index;
+   }
 
 }

@@ -30,6 +30,8 @@ public class Player extends JFrame{
    
    //ArrayList<Vector> playerNames = new ArrayList<Vector>();
    
+   boolean turn;
+   
    JButton jbSend;
 
    // open input from the server
@@ -204,7 +206,7 @@ public class Player extends JFrame{
 		"program, click on the 'Credits' menu item.\n\n"+
 		"Exit the Game - To exit the game, click on the 'Exit' menu item.";
 
-		JOptionPane.showMessageDialog(null, intro);
+		JOptionPane.showMessageDialog(this, intro);
       
       /**
       * WindowListener
@@ -244,7 +246,7 @@ public class Player extends JFrame{
 			jmiAbout = new JMenuItem("Game Rules");
 			jmiCredits = new JMenuItem("Credits");
 			jmiExit = new JMenuItem("Exit");
-         jmiNewGame = new JMenuItem("Play Again");
+         jmiNewGame = new JMenuItem("New Game");
 
 			jm.add(jmiConnect);
          jm.add(jmiNewGame);
@@ -292,7 +294,7 @@ public class Player extends JFrame{
 																						                      "Walls are placed horizontally or vertically and take up two connecting spots. \n" +
 																													                       "Walls can't be moved and can never completely wall in the opponent. There must always be a path. \n";
 
-					JOptionPane.showMessageDialog(null, ruleString);
+					JOptionPane.showMessageDialog(jmiAbout, ruleString);
 
 				}
 
@@ -307,7 +309,7 @@ public class Player extends JFrame{
 					String credits = "The contributors to the Quoridor Program: \n\n"+
 					"- Catherine Poggioli\n- John Hill\n- Jack Old\n- David Luong";
 
-					JOptionPane.showMessageDialog(null, credits);
+					JOptionPane.showMessageDialog(jmiCredits, credits);
 
 				}
 
@@ -364,6 +366,7 @@ public class Player extends JFrame{
       	jpIpPane.add(jlAddress);
       
       	jtfAddress = new JTextField(20);
+         jtfAddress.setText("localhost");
       	jpIpPane.add(jtfAddress);
       
  			//Add Panels to JFrame
@@ -387,7 +390,7 @@ public class Player extends JFrame{
 				}
 
 			});
-
+         setResizable(false);
 			setVisible(true);
 		}
 
@@ -404,8 +407,16 @@ public class Player extends JFrame{
       */ 
 		public PlayerDisconnect(){
 			
-			PlayerExit pe = new PlayerExit();
-
+         PlayerExit pe = new PlayerExit();
+         
+         if(turn == true){
+			   pe.setTurn(true, clientNum);
+            
+         }
+         else{
+            pe.setTurn(false, clientNum);
+         }
+         
 			try{
 				oos.writeObject(pe);
 				oos.flush();
@@ -745,6 +756,7 @@ public class Player extends JFrame{
             if(!((x == tLocation[clientNum][0]) && (y == tLocation[clientNum][1]))){
                enableDisableWall(false);
                enableDisableSpace(false);
+               turn = false;
                
                //Check if win condition is met
                if((clientNum == 0 && x == 8) || (clientNum == 1 && x == 0) || (clientNum == 2 && y == 8) || (clientNum == 3 && y == 0)){//location matches win Con #
@@ -793,6 +805,7 @@ public class Player extends JFrame{
                bottomArray[x][y+1] = 1;
                if(pathTrial() == true){
                //path found
+                  turn = false;
                   centerArray[x][y] = 0;
                   bottomArray[x][y] = 0;
                   bottomArray[x][y+1] = 0;
@@ -819,11 +832,13 @@ public class Player extends JFrame{
             //Vertical wall was clicked
             else if(choice == JOptionPane.NO_OPTION){
                //Temp horz wall in Array to check if path avaliable
+            
                centerArray[x][y] = 1;            
                rightArray[x][y]= 1;
                rightArray[x+1][y] = 1;
                if(pathTrial() == true){
                //path found
+                  turn = false;
                   centerArray[x][y] = 0;
                   rightArray[x][y] = 0;
                   rightArray[x+1][y] = 0;
@@ -947,13 +962,15 @@ public class Player extends JFrame{
                   for(int i = 0; i < pAmount; i++){
                      playerArray[resetLocation[i][0]][resetLocation[i][1]] = 1;
                      playerSpace[resetLocation[i][0]][resetLocation[i][1]].setIcon(imageList[i]);  
-                     jlWallCount.get(i).setText(pNames.get(i) + "'s Walls: " + wallCount.get(i));                    
+                     jlWallCount.get(i).setText(pNames.get(i) + "'s Walls: " + wallCount.get(i));
+                     jlScore.get(i).setText(pNames.get(i) + ": " + pScore.get(i));                    
                   }                 
                }
                
                else if (genObject instanceof PlayerTurn){
                   //Dialog pop up
-                  JOptionPane.showMessageDialog( null, "It is now your turn");
+                  JOptionPane.showMessageDialog( jmiConnect, "It is now your turn");
+                  turn = true; //set boolean as true
                   //run enable functions here
                   if(wallCount.get(clientNum) > 0){
                      enableDisableWall(true);
@@ -988,18 +1005,50 @@ public class Player extends JFrame{
                   playerSpace[x][y].setIcon(imageList[index]); //use player info to get the proper Icon Image
                   
                   pScore.set(index, pScore.get(index) +1);
-                  jlScore.get(index).setText(pNames.get(index) + "'s Walls: " + pScore.get(index));
+                  jlScore.get(index).setText(pNames.get(index) + ": " + pScore.get(index));
                   
                   if(clientNum == index){
-                     JOptionPane.showMessageDialog(null, "YOU WIN!");
+                     JOptionPane.showMessageDialog(jmiConnect, "YOU WIN!");
    
                   }
                   else{
-                     JOptionPane.showMessageDialog(null, wc.getName() + " has reached the opposite side and wins!");
+                     JOptionPane.showMessageDialog(jmiConnect, wc.getName() + " has reached the opposite side and wins!");
 
                   }
                }
+               else if(genObject instanceof NewGame){
+                  NewGame ng = (NewGame)genObject;
+                  enableDisableSpace(false);
+                  enableDisableWall(false);
+                  
+                  JOptionPane.showMessageDialog(jmiConnect, ng.getName() + " has requested to start a new game!");
+                  
+                  for(int i = 0; i < 9; i++){
+                     for(int j = 0; j <9; j++){
+                     
+                        centerWall[i][j].setBackground(Color.DARK_GRAY);
+                        rightWall[i][j].setBackground(Color.DARK_GRAY);
+                        bottomWall[i][j].setBackground(Color.DARK_GRAY);
+                        
+                        centerArray[i][j] = 0;
+                        rightArray[i][j] = 0;
+                        bottomArray[i][j] = 0;
+                  
+                     }//end of inner for loop
+                  }//end of outer for loop
+                  
+                  for(int i = 0; i < 4; i++){
+                     playerSpace[tLocation[i][0]][tLocation[i][1]].setIcon(emptySpace);
+                     //playerSpace[tLocation[i][0]][tLocation[i][1]] = 0;
+                     playerArray[tLocation[i][0]][tLocation[i][1]] = 0;
+                     playerArray[resetLocation[i][0]][resetLocation[i][1]] = 0;
+                     playerSpace[resetLocation[i][0]][resetLocation[i][1]].setIcon(imageList[i]); 
+                     wallCount.set(i, 5);
+                     jlWallCount.get(i).setText(pNames.get(i) + "'s Walls: " + wallCount.get(i));                  
+                  }//end of for
+                  tLocation = resetLocation;
                
+               }
                else if (genObject instanceof ChatMessage){
                   ChatMessage cm = (ChatMessage)genObject;
                   jtaMessage.append(cm.toString());  
