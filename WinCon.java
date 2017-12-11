@@ -5,22 +5,18 @@ import java.io.*;
  * her horizontal and vertical location on the board, by the winner's index, and by the winner's 
  * name. <p> 
  *
+ * Group# 06 <p>
+ * ISTE 121
+ * 
  * @author Catherine Poggioli 
  * @author John Hill
  * @author Jack Old
  * @author David Luong
  *
- * @group# 06 
- * @course ISTE 121
- * @instructor Michael Floeser
  *
  * @version 2017-11-30
  */
 public class WinCon implements Serializable {
-
-   /**
-    * @attributes: winner's name, index, horizontal position, and vertical position 
-    */
 
    String name;
    int index;
@@ -47,29 +43,30 @@ public class WinCon implements Serializable {
    } //End of constructor
    
    /**
-    * @method getIndex() - retrieves the winner's index
-    * @type accessor
+    * getIndex() method - retrieves the winner's index
+    * @return index of the player
     */ 
    public int getIndex(){
       return index;
    }
    /**
-    * @method getName() - retrieves the winner's name
-    * @type accessor
+    * getName() method - retrieves the winner's name
+    * @return string name of the winner
     */ 
    public String getName(){
       return name;
    }
    /**
-    * @method getX() - retrieves the winner's horizontal position 
-    * @type accessor   
+    * getX() method - retrieves the winner's horizontal position 
+    * @return x position of the winner 
     */
    public int getX(){
       return x;
    }
+   
    /**
-    * @method getX() - retrieves the winner's vertical position 
-    * @type accessor   
+    * getY() - retrieves the winner's vertical position 
+    * @return y position of the winner 
     */ 
    public int getY(){
       return y;

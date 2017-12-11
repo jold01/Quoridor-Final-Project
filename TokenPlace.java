@@ -4,26 +4,25 @@ import java.io.*;
 /**
  * TokensPlace is a serialized class for retrieving the location of a token by its horizontal 
  * and vertical positions, and its position on the game board by index. <p>
+ *
+ * Group# 06 <p>
+ * ISTE 121
  *  
  * @author Catherine Poggioli 
  * @author John Hill
  * @author Jack Old
  * @author David Luong
  *
- * @group# 06 
- * @course ISTE 121
- * @instructor Michael Floeser
  *
  * @version 2017-11-30
  */
 
 public class TokenPlace implements Serializable {
-   /**
-    * Properties of a token
-    */
+
    int x;
    int y;
    int index;
+   
    //an alternative to name might be to send in the index  
    /**
     * Parameterized constructor accepts the token's horizontal and vertical positions, and 
@@ -37,24 +36,26 @@ public class TokenPlace implements Serializable {
       this.index = _index;
       this.x = _x;
       this.y = _y;
-   } //End of method
+   } 
+   
    /**
-    * @method getIndex() - retrieves the token's index
-    * @type accessor
+    * getIndex() method- retrieves the token's index
+    * @return integer index
     */     
    public int getIndex(){
       return index;
    }
+   
    /**
-    * @method getX() - retrieves the horizontal position of the token
-    * @type accessor   
+    * getX() method - retrieves the horizontal position of the token
+    * @return integer x-coordinate  
     */ 
    public int getX(){
       return x;
    }
    /**
-    * @method getY() - retrieves the vertical position of the token
-    * @type accessor   
+    * getY() method - retrieves the vertical position of the token
+    * @return integer y-coordinate   
     */ 
    public int getY(){
       return y;

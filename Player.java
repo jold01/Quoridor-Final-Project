@@ -9,48 +9,43 @@ import java.net.*;
 /**
  * Player is a serialized class, and the main GUI for the Quoridor game, which contains the 
  * board, message area, score board, and their functionalities. <p>
+ * 
+ * Group# 06 <p>
+ * ISTE 121
  *
  * @author Catherine Poggioli 
  * @author John Hill
  * @author Jack Old
  * @author David Luong
  *
- * @group# 06 
- * @course ISTE 121
- * @instructor Michael Floeser
  *
  * @version 2017-11-30
  */
 
 public class Player extends JFrame{
-   /**
-    * @attributes: an output stream, and another one for passing in the player object
-    * @description: send output to server
-    */
+
    // send output to server
-   OutputStream out;
+   OutputStream out; 
    ObjectOutputStream oos;
    
    //ArrayList<Vector> playerNames = new ArrayList<Vector>();
    
    JButton jbSend;
-   /**
-    * @attributes: an input stream, and another one for passing in the player object
-    * @description: open input from the server
-    */   
+
    // open input from the server
    InputStream in;
    ObjectInputStream ois;
    
    ImageIcon emptySpace = new ImageIcon("emptyspace.jpg");
 
-   int[][] playerArray = new int[9][9];
+   int[][] playerArray = new int[9][9]; //stores the player token info
                                     
-   int[][] rightArray = new int[9][9];
+   int[][] rightArray = new int[9][9]; //stores the right wall info
 
-   int[][] bottomArray = new int[9][9];
+   int[][] bottomArray = new int[9][9]; //stores the bottom wall info
 
-   int[][] centerArray = new int[9][9];
+   int[][] centerArray = new int[9][9]; //stores the center wall info
+
    
    //Pathing solution
    int[][] solution = new int[9][9];
@@ -87,7 +82,7 @@ public class Player extends JFrame{
    int pAmount = 4; //# of players  
    
    
-   //Store name?
+   //Initial placeholder value for name of player
    String clientName = "Player";
    int clientNum;
    
@@ -127,11 +122,11 @@ public class Player extends JFrame{
    ArrayList<JLabel> jlWallCount = new ArrayList<JLabel>();
    
    /**
-    * Main method calls the default constructor of this class, and displays the game
-    *
-    * @param args - argument string(s) to run during compilation 
-    */    
-    public static void main(String [] args){
+   * Main method calls the default constructor of this class, and displays the game
+   *
+   * @param args - argument string(s) to run during compilation 
+   */    
+   public static void main(String [] args){
      
       try {
            // Set cross-platform Java L&F (also called "Metal")
@@ -151,18 +146,20 @@ public class Player extends JFrame{
       // handle exception
       }
       
-    /**
-    * Default constructor
-    */   
-     new Player();
+      //creates player object
+      new Player();
      
    } //End of main
  
- 
    
+   /**
+   * Default constructor for the player class
+   *
+   */   
+ 
    public Player(){
       
-      
+      //add inital wall count of 5 for each player
       for(int i = 0; i < pAmount; i++){
          pNames.add("Player " + (i + 1));
          wallCount.add(5);
@@ -172,6 +169,7 @@ public class Player extends JFrame{
          
       }
 	
+      //initialize GUI components and add to frame
 		add(new PlayerMenu(), BorderLayout.NORTH);
 
       add(new GridBag(), BorderLayout.CENTER);
@@ -179,19 +177,19 @@ public class Player extends JFrame{
       add(new ChatDisplay(), BorderLayout.EAST); 
       
       add(new Tracker(), BorderLayout.SOUTH);             
-         //Windows and visibility 
+      
+      //Windows and visibility 
       setTitle("Quoridor Final Project");
       setSize(1050,800);
       setLocationRelativeTo(this);
       setDefaultCloseOperation( EXIT_ON_CLOSE );
       setVisible(true); 
       
-      //new SocketSetup();
       
       //NEW STUFF FROM JACK
       clientName = JOptionPane.showInputDialog("Enter a player name: ");
-
-
+ 
+      //Rules
 		String intro = "Welcome! \n\nThis is the intro guide on how to navigate"+
 		" our Quoridor game.\nAll of the options listed below can be accessed"+
 		" through the 'Settings'\ntab at the top left of the window.\n\n" +
@@ -208,7 +206,9 @@ public class Player extends JFrame{
 
 		JOptionPane.showMessageDialog(null, intro);
       
-
+      /**
+      * WindowListener
+      */  
 		addWindowListener(new WindowAdapter(){
 			@Override
 			public void windowClosing(WindowEvent e){
@@ -220,10 +220,15 @@ public class Player extends JFrame{
       
    }
    
-	//The JMenu Class
-	//PlayerMenu NEW STUFF BY JACK
+	/**
+   * PlayerMenu class, Sets up the JMenu for the player GUI
+   */  
 	class PlayerMenu extends JPanel {
 		
+      
+      /**
+      * PlayerMenu default constructor, creates player menu GUI components 
+      */  
 		public PlayerMenu(){
 			
 			setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -248,25 +253,36 @@ public class Player extends JFrame{
 			jm.add(jmiExit);
          jmiNewGame.setEnabled(false);
 
+
+         /**
+         * Anon inner class, adds action listener for connect button, which allows the player to connect to the server and start playing
+         */  
 			jmiConnect.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent ae){
 					new ConnectWindow();
-
 				}
-
 			});
+         
+         
+         /**
+         * Anon inner class, adds action listener for new game button, which clears the board and creates a new game
+         */           
 			jmiNewGame.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent ae){
 					NewGame ng = new NewGame(clientName, clientNum);
                try{
                   oos.writeObject(ng); //send to serverJPanel jpPlayers = new JPanel(new GridLayout(0,1));JPanel jpPlayers = new JPanel(new GridLayout(0,1));
-
                   oos.flush();
                }
                catch (IOException io){}
 
 				}
 			});
+         
+         
+         /**
+         * Anon inner class, adds action listener for about button, which shows the rules of the game 
+         */ 
 			jmiAbout.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent ae){
 					String ruleString = "Each player's pawn start in the center of the board. \n" +
@@ -281,6 +297,10 @@ public class Player extends JFrame{
 				}
 
 			});
+         
+         /**
+         * Anon inner class, adds action listener for credits button, which shows the credits
+         */ 
 			jmiCredits.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent ae){
 
@@ -292,21 +312,24 @@ public class Player extends JFrame{
 				}
 
 			});
+         
+         /**
+         * Anon inner class, adds action listener for exit button, which allows the player to disconnect
+         */ 
 			jmiExit.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent ae){
 					//System.exit(0);
 					new PlayerDisconnect();
-
 				}
-
 			});
-
 		}
 
 
 	}//end of PlayerMenu Class
 
-	//CONNECT WINDOW NEW STUFF BY JACK
+   /**
+   * ConnectWindow class, when a player connects, it initializes their GUI
+   */  
 	class ConnectWindow extends JFrame{
 
    	private JPanel jpStartPane;
@@ -319,7 +342,9 @@ public class Player extends JFrame{
    
    	private JButton jbConnect;
    
-   
+      /**
+      * ConnectWindow default constructor
+      */  
    	public ConnectWindow(){
    
       	//General Frame Information
@@ -349,12 +374,15 @@ public class Player extends JFrame{
       	jpStartPane.add(jbConnect, BorderLayout.SOUTH);
       	add(jpStartPane);
 
+      
+         /**
+         * Anon inner class for connect button, sets up the player socket to the server 
+         */  
 			jbConnect.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent ae){
 					ip_address = jtfAddress.getText();
 					new SocketSetup();
 					dispose();
-      			//new SocketSetup();
 
 				}
 
@@ -365,9 +393,15 @@ public class Player extends JFrame{
 
 	}
 
-	//INNER CLASS PlayerDisconnect NEW STUFF BY JACK
+   /**
+   * Player Disconnect, inner class that sends info if a player disconnects
+   */  
 	class PlayerDisconnect{
-
+   
+   
+      /**
+      * Player Disconnect default constructor 
+      */ 
 		public PlayerDisconnect(){
 			
 			PlayerExit pe = new PlayerExit();
@@ -392,9 +426,10 @@ public class Player extends JFrame{
 
   	}//end of PlayerDisconnect 
 		
+   
    /**
-    * Inner Class for displaying chat messages 
-    */   
+   * ChatDisplay class, Inner Class for displaying chat messages 
+   */   
    class ChatDisplay extends JPanel implements ActionListener, KeyListener{
    
       public ChatDisplay(){
@@ -409,7 +444,9 @@ public class Player extends JFrame{
          jbSend = new JButton("Send");
 
        
-         //Add actionListeners for the button
+         /**
+         * Anon inner class, Add action listeners for the send button
+         */
          jbSend.addActionListener(new ActionListener(){
             public void actionPerformed (ActionEvent ae){
                String message = null;
@@ -427,7 +464,9 @@ public class Player extends JFrame{
          });
          
          
-         //Adds a keylistener/adapter for the enter key to be able to send messages
+         /**
+         * Anon inner class, Adds a keylistener/adapter for the enter key to be able to send messages
+         */
          jtfMessage.addKeyListener(
             new KeyAdapter(){
                @Override 
@@ -497,9 +536,11 @@ public class Player extends JFrame{
       
       
    }//End of chat display class
+   
+   
    /**
-    * Inner Class for updating scores on the score board.
-    */   
+   * Tracker Class, Inner Class for updating scores on the score board.
+   */   
    class Tracker extends JPanel{
    
       public Tracker(){
@@ -524,6 +565,7 @@ public class Player extends JFrame{
          rightPanel.setBackground(Color.LIGHT_GRAY);
          rightPanel.setBorder(new EmptyBorder(new Insets(0,15,0,0)));
          
+         
          for(int i = 0; i < pAmount; i++){
             jlWallCount.get(i).setText(pNames.get(i) + "'s Walls: " + wallCount.get(i)); 
             jlWallCount.get(i).setFont(new Font("Arial", Font.PLAIN, 18));
@@ -542,14 +584,18 @@ public class Player extends JFrame{
          //setBorder( new EmptyBorder( 10, 30, 15, 15 ) );
       }
    } 
+   
+   
    /**
-    * Inner Class for setting the dimensions of the game board
-    */   
+    * GridBag Class, sets the dimensions of the game board
+   */   
    class GridBag extends JPanel implements ActionListener{
+      
+      
       /**
-       * GridBag default constructor
-       */       
-      GridBag(){
+      * GridBag default constructor
+      */       
+      public GridBag(){
    
          Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
          int h = screenSize.height;
@@ -563,8 +609,10 @@ public class Player extends JFrame{
          bottomWall = new JButton[10][10];
          centerWall = new JButton[10][10];
    
+         //Outer for loop
          for (int i = 0; i < 9; i++){
          
+            //Inner for loop
             for (int j = 0; j < 9; j++){
                
                JPanel jpSquare = new JPanel(); //one square is 4 players spaces
@@ -673,11 +721,12 @@ public class Player extends JFrame{
               
          add(jpBoard);
           
-      
       }//End of constructor 
+      
+      
       /**
-       * Event handlers
-       */      
+      * Handles the event of a button being clicked on the player GUI
+      */      
       public void	actionPerformed(ActionEvent ae){
          
          //Get location of button clicked
@@ -721,6 +770,8 @@ public class Player extends JFrame{
                }//emd else
             } 
          }
+         
+         //If a center wall is clicked
          if (name.equals("center")){
                      
             Object[] options = {"Horizontal","Vertical"};
@@ -804,7 +855,17 @@ public class Player extends JFrame{
    
    } //End of class GridBag
    
+   
+   /**
+   * SocketSetup inner class, initializes the player socket to the server, so they can communicate with one another
+   */ 
+   
    class SocketSetup{
+   
+      
+      /**
+      * SocketSetup default constructor
+      */ 
    
       public SocketSetup(){
       
@@ -842,18 +903,20 @@ public class Player extends JFrame{
       
    } //End of class SocketSetup
    
-   /**
-    * Inner Class for running the threads
-    */   
-   class ThreadReader extends Thread implements ActionListener{
-      /**
-       * ThreadReader default constructor
-       */     
-      public ThreadReader(){
-         
-                
    
-      }//End of constructor   
+   
+   /**
+   * ThreadReader, Inner Class, creates a thread for reading messages/info
+   */   
+   class ThreadReader extends Thread implements ActionListener{
+      
+      
+      /**
+      * ThreadReader default constructor
+      */     
+      public ThreadReader(){
+
+      } 
       
       //starts the work of the thread
       public void run(){
@@ -873,6 +936,7 @@ public class Player extends JFrame{
                   clientNum = pn.getIndex();
                   
                }//End of if
+              
                //used to set up a new game with current total players
                else if (genObject instanceof InitialGame){
                   jmiNewGame.setEnabled(true);
@@ -886,6 +950,7 @@ public class Player extends JFrame{
                      jlWallCount.get(i).setText(pNames.get(i) + "'s Walls: " + wallCount.get(i));                    
                   }                 
                }
+               
                else if (genObject instanceof PlayerTurn){
                   //Dialog pop up
                   JOptionPane.showMessageDialog( null, "It is now your turn");
@@ -900,6 +965,7 @@ public class Player extends JFrame{
                   
                   //Possible timer?
                }
+               
                else if (genObject instanceof WinCon){
                
                   WinCon wc = (WinCon)genObject;
@@ -933,10 +999,12 @@ public class Player extends JFrame{
 
                   }
                }
+               
                else if (genObject instanceof ChatMessage){
                   ChatMessage cm = (ChatMessage)genObject;
                   jtaMessage.append(cm.toString());  
                }
+               
                else if (genObject instanceof HorzPlace){
                   HorzPlace hp = (HorzPlace)genObject;
                   int x = hp.getX();
@@ -954,6 +1022,7 @@ public class Player extends JFrame{
                   wallCount.set(index, wallCount.get(index) -1);
                   jlWallCount.get(index).setText(pNames.get(index) + "'s Walls: " + wallCount.get(index)); 
                }
+               
                else if (genObject instanceof VertPlace){
                   VertPlace vp = (VertPlace)genObject;
                   int x = vp.getX();
@@ -991,10 +1060,9 @@ public class Player extends JFrame{
                   playerSpace[prevx][prevy].setIcon(emptySpace); //Uses empty space graphic to show spot is empty
                   playerSpace[x][y].setIcon(imageList[index]); //use player info to get the proper Icon Image
                   
-                  
-               
                }
-               //NEW STUFF BY JACK
+               
+               
 					else if(genObject instanceof PlayerExit){
 						PlayerExit pl = (PlayerExit)genObject;
 						
@@ -1007,9 +1075,6 @@ public class Player extends JFrame{
 						finally{
 							System.exit(0);
 						}
-
-
-
 					}
                
                
@@ -1033,6 +1098,14 @@ public class Player extends JFrame{
           
       }
    } //End of inner class ThreadConnection
+   
+    
+   /**
+   * enableDisableWall method, enables or disables the center walls
+   *
+   * @param clickable a boolean value, false when not this players turn, true if it is their turn
+   */ 
+   
    public void enableDisableWall(boolean clickable){
       for(int x = 0; x < 9; x++){
          for(int y = 0; y < 9; y++){
@@ -1042,6 +1115,13 @@ public class Player extends JFrame{
          }
       }
    }
+   
+   /**
+   * enableDisableSpace method, enables or disables the player spaces
+   *
+   * @param clickable a boolean value, false when not this players turn, true if it is their turn
+   */ 
+   
    public void enableDisableSpace(boolean clickable){
       int x = tLocation[clientNum][0];
       int y = tLocation[clientNum][1];
@@ -1074,7 +1154,16 @@ public class Player extends JFrame{
       }
       catch(ArrayIndexOutOfBoundsException ae){}      
    }
-   boolean pathTrial(){
+   
+   
+   /**
+   * pathTrial method, checks that the current move should be allowed
+   *
+   * @return a boolean value, true if the move is valid, false if it is not
+   * @return boolean value of whether or not the move is valid
+   */ 
+   
+   public boolean pathTrial(){
       boolean pathAllow = true;
       for(int pNum = 0; pNum < pAmount; pNum++){//change pAmount for less players or have a list of only active players (Option)
          if(pathFound(pNum) == false){
@@ -1090,7 +1179,14 @@ public class Player extends JFrame{
       return pathAllow;
    }//end PathTrail
    
-   boolean pathFound(int playerNum){
+   
+   /**
+   * pathFound method
+   *
+   * @param playerNum integer value of the player index
+   * @return boolean value of whether or not the move is valid
+   */ 
+   public boolean pathFound(int playerNum){
    
       //passes in player token locations and player number
       if (pathRec(tLocation[playerNum][0], tLocation[playerNum][1], playerNum) == false){
@@ -1103,12 +1199,24 @@ public class Player extends JFrame{
       return true;
    }//end pathFound
    
-   //returns false if the cordinates are outside of the array or player space is filled
-   boolean isSafe(int x, int y, int array[][]){
-      return( x >= 0 && x < 9 && y >= 0 && y < 9 && array[x][y] == 0); //replace 9 with a variable for Array lengths
-   }//end isSafe
    
-   //reset the solution to empty
+   /**
+   * isSafe, returns false if the cordinates are outside of the array or player space is filled
+   *
+   * @param x  x coordinate
+   * @param y  y coordinate
+   * @param array 2D array
+   * @return boolean value of whether or not the move is valid
+   */ 
+   public boolean isSafe(int x, int y, int array[][]){
+      return( x >= 0 && x < 9 && y >= 0 && y < 9 && array[x][y] == 0); //replace 9 with a variable for Array lengths
+   }
+   
+   /**
+   * clearArray, reset the solution to empty
+   *
+   * @param array 2D array
+   */    
    public void clearArray(int array[][]){
       for(int i = 0; i < 9; i++){
          for(int j = 0; j < 9; j++){
@@ -1116,8 +1224,16 @@ public class Player extends JFrame{
          }//end of inner loop
       }//end of outer loop
    }//end of Clear Solution
-      
-   boolean pathRec(int x, int y, int num){
+   
+   /**
+   * pathRec method
+   *
+   * @param x x-coordinate
+   * @param y y-coordinate
+   * @param num player number
+   * @return boolean value of whether or not the move is valid
+   */     
+   public boolean pathRec(int x, int y, int num){
    
       //Check for path avaliable allows exit of recursion
       if((num == 0 || num == 1) && x == winCon[num]){

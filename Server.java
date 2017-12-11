@@ -9,19 +9,18 @@ import java.lang.StringBuilder;
 /**
  * Game Server accepts player connections, and enables player communication.
  *
+ * Group# 06 <p>
+ * ISTE 121
+ * 
  * @author Catherine Poggioli 
  * @author John Hill
  * @author Jack Old
  * @author David Luong
  *
- * @group# 06 
- * @course ISTE 121
- * @instructor Michael Floeser
  *
  * @version 2017-11-30
  */
  
-//NEWEST VERSION
 public class Server extends JFrame{
 
 
@@ -55,8 +54,8 @@ public class Server extends JFrame{
    } //End of main
    
    /**
-    * Server default constructor
-    */   
+   * Server default constructor
+   */   
    public Server(){
  	
 		JPanel jpPlayers = new JPanel(new GridLayout(0,1));
@@ -137,23 +136,33 @@ public class Server extends JFrame{
    
    } //End of server constructor 
 
-	//jtaToString creates a string that will create the output for the server player JTAs
+
+   /**
+   * jtaToString creates a string to show a new player connected on the Server GUI
+   *
+   * @param name String name of the player
+   * @param address IP address of the player
+   * @return String combination of name and IP address
+   */   
 	public String jtaConnectToString(String name, String address){
 		String result = String.format("%s%n%s%nConnected%n", name, address);
-
 		return result;
-
-	}
-	public String jtaDisconnectToString(String name, String address){
-		String result = String.format("%s%n%s%nDisconnected%n", name, address);
-
-		return result;
-
 	}
    
    /**
-    * Inner Threaded Class for players
-    */   
+   * jtaToString creates a string to show a player disconnected on the Server GUI
+   * @param name String name of the player
+   * @param address IP address of the player
+   * @return String combination of name and IP address
+   */
+	public String jtaDisconnectToString(String name, String address){
+		String result = String.format("%s%n%s%nDisconnected%n", name, address);
+		return result;
+	}
+   
+   /**
+   * PlayerThread class, creates a thread for each player that connects
+   */   
    class PlayerThread extends Thread{
    
       private Socket cs = null;
@@ -165,11 +174,18 @@ public class Server extends JFrame{
       InputStream in = null;
       ObjectInputStream ois = null;
       
+      /**
+      * PlayerThread default constructor
+      *
+      * @param cs_ client socket object
+      */
       public PlayerThread(Socket cs_){
          cs = cs_;
       }
    
-      //start the work of the thread 
+      /**
+      * run method, starts the work of the thread 
+      */
       public void run(){
       	String name = "no name";
 			int index = 0;
@@ -372,7 +388,11 @@ public class Server extends JFrame{
          
       } //End of run method 
       
-      
+      /**
+      * sendInfo method, sends information to the players
+      *
+      * @param p general object that gets sent to the players
+      */
       public void sendInfo(Object p){
       
          try{
@@ -386,6 +406,15 @@ public class Server extends JFrame{
          }
 
       } //End of sendMessage method 
+      
+      
+      /**
+      * passTurn method, called each time a players turn is complete
+      *
+      * @param curNum current number 
+      * @param trys trys
+      * @param starting starting    
+      */
       
       public void passTurn(int curNum, int trys, int starting){
          if(trys > nameList.size()){//checks if win by default since all other players disconnected
@@ -416,6 +445,11 @@ public class Server extends JFrame{
          }//end of else      
       }//end of passTurn 
       
+      
+      /**
+      * startGame method, called when a new game needs to be started
+      *  
+      */
       public void startGame(){
       //START GAME 
                      

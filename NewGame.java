@@ -2,11 +2,11 @@ import java.util.*;
 import java.io.*;
 
 /**
- *  This is an object used to tell the players to create a new game
- * group# 01 
- * course ISTE 121
- * instructor Michael Floeser
- 
+ * NewGame Class, used in order to allow for the creation of a new game
+ *
+ * Group# 06 <p>
+ * ISTE 121
+ *
  * @author Catherine Poggioli 
  * @author John Hill
  * @author Jack Old
@@ -22,18 +22,30 @@ public class NewGame implements Serializable {
    int index;
    
    /**
-    * Stores the player name
-    *
-    * @param _clientName - saves the name of the person who made the client game request
-    */     
+   * NewGame parameterized constructor 
+   *
+   * @param _clientName - saves the name of the person who made the client game request
+   * @param _index - saves the index of the person who made the client game request  
+   */     
    public NewGame(String _clientName, int _index){
       this.clientName = _clientName;
-      this.index = _index;
-      
+      this.index = _index;   
    } //End of method
+   
+   /**
+   * getName getter method
+   *
+   * @return String of the clientname 
+   */ 
    public String getName(){
       return clientName;
    }
+   
+   /**
+   * getIndex getter method
+   *
+   * @return integer of the player index
+   */ 
    public int getIndex(){
       return index;
    }
