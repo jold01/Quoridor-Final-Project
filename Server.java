@@ -341,17 +341,16 @@ public class Server extends JFrame{
 						}
 
 						jtaDisplay.get(index).setText(jtaDisconnectToString(name, (""+cs)));
-                  
                   if(pl.getTurn() == true){
-                     passTurn(pl.getIndex(), 0, pl.getIndex()); 
-                  }  
+                     passTurn(pl.getIndex(), 0, pl.getIndex());
+                  } 
 						try{
-							oos.writeObject(pl);
-							oos.flush();
+						oos.writeObject(pl);
+						oos.flush();
 
-							oos.close();
-							ois.close();
-							cs.close();
+					   oos.close();
+					   ois.close();
+						cs.close();
 						}
 						catch(IOException ioe){
 							System.out.println("Confirmed Player left Boi");
